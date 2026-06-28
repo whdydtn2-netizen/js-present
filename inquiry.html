@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>견적문의 | JS 프레젠트</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+    }
+    body { min-height: max(884px, 100dvh); }
+
+    .option-box input[type="checkbox"] { display: none; }
+    .option-box label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 20px 16px;
+        border: 2px solid #c6c6cd;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        background: #fff;
+        user-select: none;
+    }
+    .option-box input[type="checkbox"]:checked + label {
+        border-color: #7a580f;
+        background: #ffd07d33;
+    }
+    .option-box input[type="checkbox"]:checked + label .check-icon {
+        background: #7a580f;
+        color: #fff;
+    }
+    .check-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 2px solid #c6c6cd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .field-input {
+        width: 100%;
+        border: none;
+        border-bottom: 2px solid #c6c6cd;
+        padding: 12px 0;
+        font-size: 16px;
+        background: transparent;
+        outline: none;
+        transition: border-color 0.2s;
+        color: #0b1c30;
+    }
+    .field-input:focus { border-bottom-color: #000; }
+    .field-input::placeholder { color: #9ca3af; }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "surface-variant": "#d3e4fe",
+                    "surface-bright": "#f8f9ff",
+                    "surface-tint": "#565e74",
+                    "on-tertiary-container": "#818486",
+                    "on-tertiary-fixed": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#bec6e0",
+                    "inverse-primary": "#bec6e0",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#dce9ff",
+                    "background": "#f8f9ff",
+                    "on-surface": "#0b1c30",
+                    "surface-container-highest": "#d3e4fe",
+                    "primary": "#000000",
+                    "tertiary": "#000000",
+                    "inverse-surface": "#213145",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "secondary-fixed-dim": "#edc06e",
+                    "tertiary-container": "#191c1e",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#e0e3e5",
+                    "outline-variant": "#c6c6cd",
+                    "primary-container": "#131b2e",
+                    "surface": "#f8f9ff",
+                    "error": "#ba1a1a",
+                    "on-background": "#0b1c30",
+                    "secondary-container": "#ffd07d",
+                    "on-secondary-container": "#79570d",
+                    "surface-container": "#e5eeff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-low": "#eff4ff",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#131b2e",
+                    "on-tertiary-fixed-variant": "#444749",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#dae2fd",
+                    "secondary": "#7a580f",
+                    "surface-dim": "#cbdbf5",
+                    "on-surface-variant": "#45464d",
+                    "on-secondary-fixed": "#271900",
+                    "on-primary-container": "#7c839b",
+                    "outline": "#76777d",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#5e4200",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "secondary-fixed": "#ffdea8"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+                },
+                "spacing": {
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "container-max": "1280px",
+                    "section-gap": "120px",
+                    "margin-desktop": "64px",
+                    "gutter": "24px"
+                },
+                "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Noto Sans"],
+                    "body-lg": ["Noto Sans"],
+                    "display-lg": ["Noto Sans"],
+                    "display-lg-mobile": ["Noto Sans"],
+                    "body-md": ["Noto Sans"]
+                },
+                "fontSize": {
+                    "label-sm": ["14px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "1.4", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                }
+            }
+        }
+    }
+</script>
+</head>
+<body class="bg-background text-on-background font-body-md">
+
+<!-- Mobile Drawer -->
+<div id="drawer-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeDrawer()"></div>
+<aside id="drawer" class="fixed top-0 left-0 h-full w-64 bg-white z-50 shadow-xl transform -translate-x-full transition-transform duration-300 flex flex-col">
+<div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
+    <span class="font-bold text-lg text-primary">JS 프레젠트</span>
+    <span class="material-symbols-outlined cursor-pointer text-primary" onclick="closeDrawer()">close</span>
+</div>
+<nav class="flex flex-col px-4 py-6 gap-1">
+    <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()">
+        <span class="material-symbols-outlined text-secondary">home</span>홈
+    </a>
+    <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()">
+        <span class="material-symbols-outlined text-secondary">inventory_2</span>상품 목록
+    </a>
+    <a href="inquiry.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()">
+        <span class="material-symbols-outlined text-secondary">edit_note</span>견적문의
+    </a>
+    <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()">
+        <span class="material-symbols-outlined text-secondary">support_agent</span>고객문의
+    </a>
+</nav>
+</aside>
+
+<!-- TopAppBar -->
+<header class="sticky top-0 w-full z-50 bg-white border-b border-outline-variant">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit max-w-container-max mx-auto">
+    <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary" onclick="openDrawer()">menu</span>
+        <a href="index.html" class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary tracking-tighter">JS 프레젠트</a>
+    </div>
+    <div class="flex items-center gap-unit">
+        <nav class="hidden md:flex gap-8 items-center mr-8">
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="index.html">홈</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="products.html">상품 목록</a>
+            <a class="text-primary font-bold border-b-2 border-primary py-1" href="inquiry.html">견적문의</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="contact.html">고객문의</a>
+        </nav>
+        <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary">shopping_cart</span>
+        <a href="login.html" title="관리자 페이지" class="ml-1 flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors" aria-label="관리자 페이지">
+            <span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" style="font-size:20px">admin_panel_settings</span>
+        </a>
+    </div>
+</div>
+</header>
+
+<main class="w-full">
+
+<!-- Page Hero -->
+<section class="relative w-full overflow-hidden bg-primary-container py-16 md:py-24">
+    <div class="absolute inset-0 z-0 opacity-20" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuApJohUifCv-YSy22DVWCgmbio8rhGjziXeYflxY454MsZjppKbHW6vn_un8u05WQyZFt51MMdrnG4oq-4QYuPweRNTP_dOEyY7EIcXFSf_5nOJHDKWcLg3z8mYLdzTVrVp_sZ4sBRchvGn9mtTPOUC7VoeDRZTSPMYKpGRbiiHsJRZ8FLdyeYaFqyONqmPPErFzt0XVge8CmXFN_W52cn5Ba1Gfx9gDdlAtNL0tuu97NFKh2ZQcj_o0rw60RiBYb5bdUP5-4eQXFw'); background-size: cover; background-position: center;"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm font-label-sm rounded-full mb-4">PREMIUM B2B PARTNER</span>
+        <h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white mb-4">견적문의</h2>
+        <p class="text-on-primary-container font-body-lg max-w-lg">단체 선물 견적을 빠르고 쉽게 요청하세요.<br/>담당자가 24시간 내 회신해드립니다.</p>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-16 md:py-24">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-16">
+
+            <!-- Left: Info -->
+            <div class="lg:col-span-2 flex flex-col gap-10">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">담당자 직통 연결</h3>
+                    <p class="text-on-surface-variant font-body-md">견적 요청 후 영업일 기준 1일 이내 담당자가 연락드립니다. 급한 건은 아래 번호로 직접 연락주세요.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1">call</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-on-surface mb-0.5">전화 문의</p>
+                            <p class="text-on-surface-variant text-sm">02-1234-5678</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">평일 09:00 – 18:00</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1">mail</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-on-surface mb-0.5">이메일 문의</p>
+                            <p class="text-on-surface-variant text-sm">inquiry@jspresent.co.kr</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1">schedule</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-on-surface mb-0.5">빠른 회신 보장</p>
+                            <p class="text-on-surface-variant text-sm">영업일 기준 24시간 이내 회신</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Steps -->
+                <div class="bg-surface border border-outline-variant rounded-xl p-6">
+                    <p class="font-bold text-sm text-on-surface mb-4 uppercase tracking-wider">진행 프로세스</p>
+                    <ol class="flex flex-col gap-4">
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">1</span>
+                            <span class="text-sm text-on-surface">견적 요청서 작성 및 제출</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">2</span>
+                            <span class="text-sm text-on-surface">담당자 연락 및 상세 상담</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">3</span>
+                            <span class="text-sm text-on-surface">맞춤 견적서 발송</span>
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-secondary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">4</span>
+                            <span class="text-sm text-on-surface">계약 및 제작·배송</span>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Right: Form -->
+            <div class="lg:col-span-3">
+                <form id="inquiry-form" onsubmit="submitForm(event)" novalidate>
+                    <div class="bg-white border border-outline-variant rounded-xl p-8 md:p-10 flex flex-col gap-10">
+
+                        <!-- Basic Info -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">1</span>
+                                기본 정보
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">이름 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="text" name="name" placeholder="홍길동" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">이름을 입력해주세요.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">연락처 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="tel" name="phone" placeholder="010-0000-0000" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">연락처를 입력해주세요.</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">회사 · 기관명 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="text" name="company" placeholder="(주)JS프레젠트 / 서울시청" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">회사 또는 기관명을 입력해주세요.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">수량 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="number" name="quantity" placeholder="예: 100" min="1" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">수량을 입력해주세요.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-outline-variant"></div>
+
+                        <!-- Options -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-2 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">2</span>
+                                제작 옵션 선택
+                            </h4>
+                            <p class="text-on-surface-variant text-sm mb-6">중복 선택 가능합니다.</p>
+                            <div class="grid grid-cols-3 gap-4 option-box">
+                                <div>
+                                    <input type="checkbox" id="opt-engraving" name="options" value="동판인쇄"/>
+                                    <label for="opt-engraving" class="text-center">
+                                        <span class="check-icon material-symbols-outlined text-base text-on-surface-variant" style="font-variation-settings:'FILL' 1; font-size:18px;">verified</span>
+                                        <span class="material-symbols-outlined text-2xl text-secondary">auto_fix_high</span>
+                                        <span class="font-bold text-sm text-on-surface">동판인쇄</span>
+                                        <span class="text-xs text-on-surface-variant text-center leading-relaxed">금속 각인 / 고급 로고 인쇄</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="opt-sticker" name="options" value="스티커"/>
+                                    <label for="opt-sticker" class="text-center">
+                                        <span class="check-icon material-symbols-outlined text-base text-on-surface-variant" style="font-variation-settings:'FILL' 1; font-size:18px;">verified</span>
+                                        <span class="material-symbols-outlined text-2xl text-secondary">label</span>
+                                        <span class="font-bold text-sm text-on-surface">스티커</span>
+                                        <span class="text-xs text-on-surface-variant text-center leading-relaxed">맞춤형 브랜드 스티커 부착</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="checkbox" id="opt-packaging" name="options" value="포장"/>
+                                    <label for="opt-packaging" class="text-center">
+                                        <span class="check-icon material-symbols-outlined text-base text-on-surface-variant" style="font-variation-settings:'FILL' 1; font-size:18px;">verified</span>
+                                        <span class="material-symbols-outlined text-2xl text-secondary">redeem</span>
+                                        <span class="font-bold text-sm text-on-surface">포장</span>
+                                        <span class="text-xs text-on-surface-variant text-center leading-relaxed">프리미엄 선물 포장 서비스</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-outline-variant"></div>
+
+                        <!-- Memo -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">3</span>
+                                요청사항
+                            </h4>
+                            <textarea
+                                name="memo"
+                                rows="5"
+                                placeholder="배송 일정, 특별 요청, 참고할 사항 등 자유롭게 남겨주세요."
+                                class="w-full border border-outline-variant rounded-lg px-4 py-3 text-base text-on-surface placeholder:text-outline bg-surface focus:outline-none focus:border-primary transition-colors resize-none"
+                            ></textarea>
+                        </div>
+
+                        <!-- Submit -->
+                        <button type="submit" class="w-full bg-secondary text-on-secondary py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">send</span>
+                            견적 요청 제출하기
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Success Message -->
+                <div id="success-msg" class="hidden bg-white border border-outline-variant rounded-xl p-12 text-center">
+                    <span class="material-symbols-outlined text-secondary text-6xl mb-6 block" style="font-variation-settings:'FILL' 1">check_circle</span>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">견적 요청이 접수되었습니다!</h3>
+                    <p class="text-on-surface-variant font-body-md mb-8">담당자가 영업일 기준 24시간 이내 연락드립니다.<br/>급한 문의는 02-1234-5678로 연락주세요.</p>
+                    <a href="index.html" class="inline-block bg-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-80 transition-opacity">홈으로 돌아가기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter px-margin-mobile md:px-margin-desktop py-16 max-w-container-max mx-auto">
+    <div>
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-4">JS Present Premium</h2>
+        <p class="font-label-sm text-label-sm text-on-surface/60 mb-8 max-w-xs">
+            프리미엄 공공기관 전문 선물 큐레이션 파트너. 우리는 단순한 물건을 넘어 브랜드의 가치와 감사의 마음을 전달합니다.
+        </p>
+        <div class="flex gap-4 mb-8">
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">기관 구매</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">사업 문의</a>
+        </div>
+        <p class="font-label-sm text-label-sm text-on-surface opacity-50">© 2024 JS Present. Premium Public Procurement Partner.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-8">
+        <div class="flex flex-col gap-4">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">안내</h4>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">이용약관</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">개인정보처리방침</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">고객센터</a>
+        </div>
+        <div class="flex flex-col gap-4">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">소셜</h4>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">인스타그램</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">링크드인</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">네이버 블로그</a>
+        </div>
+    </div>
+</div>
+</footer>
+
+<script>
+    function openDrawer() {
+        document.getElementById('drawer').classList.remove('-translate-x-full');
+        document.getElementById('drawer-overlay').classList.remove('hidden');
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.add('-translate-x-full');
+        document.getElementById('drawer-overlay').classList.add('hidden');
+    }
+
+    const header = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+        header.classList.toggle('shadow-md', window.scrollY > 50);
+    });
+
+    // Phone auto-format
+    document.querySelector('input[name="phone"]').addEventListener('input', function () {
+        let val = this.value.replace(/\D/g, '');
+        if (val.length <= 3) {
+            this.value = val;
+        } else if (val.length <= 7) {
+            this.value = val.slice(0, 3) + '-' + val.slice(3);
+        } else {
+            this.value = val.slice(0, 3) + '-' + val.slice(3, 7) + '-' + val.slice(7, 11);
+        }
+    });
+
+    function submitForm(e) {
+        e.preventDefault();
+        const form = e.target;
+        let valid = true;
+
+        form.querySelectorAll('[required]').forEach(field => {
+            const err = field.parentElement.querySelector('.error-msg');
+            if (!field.value.trim()) {
+                field.style.borderBottomColor = '#ba1a1a';
+                if (err) err.classList.remove('hidden');
+                valid = false;
+            } else {
+                field.style.borderBottomColor = '';
+                if (err) err.classList.add('hidden');
+            }
+        });
+
+        if (!valid) return;
+
+        const checkedOptions = [...form.querySelectorAll('input[name="options"]:checked')].map(el => el.value);
+        const data = {
+            id: Date.now(),
+            name: form.name.value.trim(),
+            phone: form.phone.value.trim(),
+            company: form.company.value.trim(),
+            quantity: form.quantity.value.trim(),
+            options: checkedOptions,
+            memo: form.memo.value.trim(),
+            status: '접수',
+            createdAt: new Date().toLocaleString('ko-KR')
+        };
+        const existing = JSON.parse(localStorage.getItem('quotes') || '[]');
+        existing.unshift(data);
+        localStorage.setItem('quotes', JSON.stringify(existing));
+
+        document.getElementById('inquiry-form').classList.add('hidden');
+        document.getElementById('success-msg').classList.remove('hidden');
+        window.scrollTo({ top: document.getElementById('success-msg').offsetTop - 100, behavior: 'smooth' });
+    }
+</script>
+</body>
+</html>

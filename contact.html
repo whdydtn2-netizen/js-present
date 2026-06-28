@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>고객문의 | JS 프레젠트</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+        font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+        display:inline-block;line-height:1;text-transform:none;
+        letter-spacing:normal;word-wrap:normal;white-space:nowrap;direction:ltr;
+    }
+    body { min-height: max(884px, 100dvh); }
+    .type-card input[type="radio"] { display:none; }
+    .type-card label {
+        display:flex;flex-direction:column;align-items:center;gap:8px;
+        padding:20px 12px;border:2px solid #c6c6cd;border-radius:0.5rem;
+        cursor:pointer;transition:border-color .2s,background .2s;background:#fff;
+        user-select:none;text-align:center;
+    }
+    .type-card input[type="radio"]:checked + label {
+        border-color:#7a580f;background:#ffd07d22;
+    }
+    .field-input {
+        width:100%;border:none;border-bottom:2px solid #c6c6cd;
+        padding:12px 0;font-size:16px;background:transparent;outline:none;
+        transition:border-color .2s;color:#0b1c30;
+    }
+    .field-input:focus { border-bottom-color:#000; }
+    .field-input::placeholder { color:#9ca3af; }
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode:"class",
+        theme:{extend:{
+            colors:{
+                "surface-variant":"#d3e4fe","surface-bright":"#f8f9ff","on-tertiary-container":"#818486",
+                "on-error-container":"#93000a","on-error":"#ffffff","surface-container-high":"#dce9ff",
+                "background":"#f8f9ff","on-surface":"#0b1c30","surface-container-highest":"#d3e4fe",
+                "primary":"#000000","tertiary":"#000000","inverse-surface":"#213145",
+                "tertiary-fixed-dim":"#c4c7c9","secondary-fixed-dim":"#edc06e","tertiary-container":"#191c1e",
+                "surface-container-lowest":"#ffffff","outline-variant":"#c6c6cd","primary-container":"#131b2e",
+                "surface":"#f8f9ff","error":"#ba1a1a","on-background":"#0b1c30",
+                "secondary-container":"#ffd07d","on-secondary-container":"#79570d","surface-container":"#e5eeff",
+                "on-tertiary":"#ffffff","surface-container-low":"#eff4ff","on-primary-fixed":"#131b2e",
+                "on-primary":"#ffffff","secondary":"#7a580f","on-surface-variant":"#45464d",
+                "on-primary-container":"#7c839b","outline":"#76777d","on-secondary":"#ffffff",
+                "on-tertiary-fixed":"#191c1e","secondary-fixed":"#ffdea8","tertiary-fixed":"#e0e3e5"
+            },
+            spacing:{"unit":"8px","margin-mobile":"20px","container-max":"1280px","section-gap":"120px","margin-desktop":"64px","gutter":"24px"},
+            fontFamily:{"label-sm":["Inter"],"headline-md":["Noto Sans"],"body-lg":["Noto Sans"],"display-lg":["Noto Sans"],"display-lg-mobile":["Noto Sans"],"body-md":["Noto Sans"]},
+            fontSize:{
+                "label-sm":["14px",{"lineHeight":"1","letterSpacing":"0.05em","fontWeight":"500"}],
+                "headline-md":["24px",{"lineHeight":"1.4","letterSpacing":"-0.01em","fontWeight":"600"}],
+                "body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],
+                "display-lg":["48px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+                "display-lg-mobile":["32px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+                "body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}]
+            }
+        }}
+    }
+</script>
+</head>
+<body class="bg-background text-on-background font-body-md">
+
+<!-- Mobile Drawer -->
+<div id="drawer-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeDrawer()"></div>
+<aside id="drawer" class="fixed top-0 left-0 h-full w-64 bg-white z-50 shadow-xl transform -translate-x-full transition-transform duration-300 flex flex-col">
+<div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
+    <span class="font-bold text-lg text-primary">JS 프레젠트</span>
+    <span class="material-symbols-outlined cursor-pointer text-primary" onclick="closeDrawer()">close</span>
+</div>
+<nav class="flex flex-col px-4 py-6 gap-1">
+    <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">home</span>홈</a>
+    <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">inventory_2</span>상품 목록</a>
+    <a href="inquiry.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">edit_note</span>견적문의</a>
+    <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">support_agent</span>고객문의</a>
+</nav>
+</aside>
+
+<!-- Header -->
+<header class="sticky top-0 w-full z-50 bg-white border-b border-outline-variant">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit max-w-container-max mx-auto">
+    <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary" onclick="openDrawer()">menu</span>
+        <a href="index.html" class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary tracking-tighter">JS 프레젠트</a>
+    </div>
+    <div class="flex items-center gap-unit">
+        <nav class="hidden md:flex gap-8 items-center mr-8">
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="index.html">홈</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="products.html">상품 목록</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="inquiry.html">견적문의</a>
+            <a class="text-primary font-bold border-b-2 border-primary py-1" href="contact.html">고객문의</a>
+        </nav>
+        <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary">shopping_cart</span>
+        <a href="login.html" title="관리자 페이지" class="ml-1 flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors" aria-label="관리자 페이지">
+            <span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" style="font-size:20px">admin_panel_settings</span>
+        </a>
+    </div>
+</div>
+</header>
+
+<main class="w-full">
+
+<!-- Hero -->
+<section class="relative w-full overflow-hidden bg-primary-container py-16 md:py-24">
+    <div class="absolute inset-0 z-0 opacity-20" style="background-image:url('https://lh3.googleusercontent.com/aida-public/AB6AXuApJohUifCv-YSy22DVWCgmbio8rhGjziXeYflxY454MsZjppKbHW6vn_un8u05WQyZFt51MMdrnG4oq-4QYuPweRNTP_dOEyY7EIcXFSf_5nOJHDKWcLg3z8mYLdzTVrVp_sZ4sBRchvGn9mtTPOUC7VoeDRZTSPMYKpGRbiiHsJRZ8FLdyeYaFqyONqmPPErFzt0XVge8CmXFN_W52cn5Ba1Gfx9gDdlAtNL0tuu97NFKh2ZQcj_o0rw60RiBYb5bdUP5-4eQXFw');background-size:cover;background-position:center;"></div>
+    <div class="relative z-10 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container text-label-sm font-label-sm rounded-full mb-4">CUSTOMER SUPPORT</span>
+        <h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-white mb-4">고객문의</h2>
+        <p class="text-on-primary-container font-body-lg max-w-lg">환불, 주문 취소, 불편사항 등 문의를 남겨주시면<br/>빠르게 처리해드립니다.</p>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="py-16 md:py-24">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-16">
+
+            <!-- Left Info -->
+            <div class="lg:col-span-2 flex flex-col gap-10">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">고객센터 안내</h3>
+                    <p class="text-on-surface-variant font-body-md">접수 후 영업일 기준 1~2일 이내 담당자가 확인 후 연락드립니다.</p>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1">call</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-on-surface mb-0.5">전화 문의</p>
+                            <p class="text-on-surface-variant text-sm">02-1234-5678</p>
+                            <p class="text-on-surface-variant text-xs mt-0.5">평일 09:00 – 18:00</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1">mail</span>
+                        </div>
+                        <div>
+                            <p class="font-bold text-on-surface mb-0.5">이메일 문의</p>
+                            <p class="text-on-surface-variant text-sm">cs@jspresent.co.kr</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-surface border border-outline-variant rounded-xl p-6">
+                    <p class="font-bold text-sm text-on-surface mb-4 uppercase tracking-wider">처리 안내</p>
+                    <ul class="flex flex-col gap-3 text-sm text-on-surface-variant">
+                        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-base mt-0.5">check_circle</span>환불 요청 — 수령 후 7일 이내 접수 가능</li>
+                        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-base mt-0.5">check_circle</span>주문 취소 — 제작 시작 전 접수 시 100% 환불</li>
+                        <li class="flex items-start gap-2"><span class="material-symbols-outlined text-secondary text-base mt-0.5">check_circle</span>불편사항 — 접수 후 24시간 내 1차 답변</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Form -->
+            <div class="lg:col-span-3">
+                <form id="contact-form" onsubmit="submitContact(event)" novalidate>
+                    <div class="bg-white border border-outline-variant rounded-xl p-8 md:p-10 flex flex-col gap-10">
+
+                        <!-- 문의 유형 -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">1</span>
+                                문의 유형 선택 <span class="text-error text-sm">*</span>
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 type-card">
+                                <div>
+                                    <input type="radio" id="type-refund" name="type" value="환불 요청" required/>
+                                    <label for="type-refund">
+                                        <span class="material-symbols-outlined text-2xl text-secondary">currency_exchange</span>
+                                        <span class="font-bold text-sm text-on-surface">환불 요청</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="type-cancel" name="type" value="주문 취소"/>
+                                    <label for="type-cancel">
+                                        <span class="material-symbols-outlined text-2xl text-secondary">cancel</span>
+                                        <span class="font-bold text-sm text-on-surface">주문 취소</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="type-complaint" name="type" value="불편사항"/>
+                                    <label for="type-complaint">
+                                        <span class="material-symbols-outlined text-2xl text-secondary">report_problem</span>
+                                        <span class="font-bold text-sm text-on-surface">불편사항</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="type-other" name="type" value="기타"/>
+                                    <label for="type-other">
+                                        <span class="material-symbols-outlined text-2xl text-secondary">help</span>
+                                        <span class="font-bold text-sm text-on-surface">기타</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p id="type-error" class="text-error text-xs mt-2 hidden">문의 유형을 선택해주세요.</p>
+                        </div>
+
+                        <div class="border-t border-outline-variant"></div>
+
+                        <!-- 기본 정보 -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">2</span>
+                                기본 정보
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">이름 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="text" name="name" placeholder="홍길동" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">이름을 입력해주세요.</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">연락처 <span class="text-error">*</span></label>
+                                    <input class="field-input" type="tel" name="phone" placeholder="010-0000-0000" required/>
+                                    <p class="error-msg text-error text-xs mt-1 hidden">연락처를 입력해주세요.</p>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">주문번호 <span class="text-on-surface-variant font-normal normal-case">(선택)</span></label>
+                                    <input class="field-input" type="text" name="order_no" placeholder="예: ORD-2024-00123"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-outline-variant"></div>
+
+                        <!-- 문의 내용 -->
+                        <div>
+                            <h4 class="font-bold text-on-surface mb-6 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">3</span>
+                                문의 내용 <span class="text-error text-sm">*</span>
+                            </h4>
+                            <textarea name="content" rows="6" placeholder="문의하실 내용을 구체적으로 작성해주세요.&#10;예) 주문한 상품이 파손된 상태로 도착하여 환불을 요청합니다." class="w-full border border-outline-variant rounded-lg px-4 py-3 text-base text-on-surface placeholder:text-outline bg-surface focus:outline-none focus:border-primary transition-colors resize-none" required></textarea>
+                            <p id="content-error" class="text-error text-xs mt-1 hidden">문의 내용을 입력해주세요.</p>
+                        </div>
+
+                        <button type="submit" class="w-full bg-secondary text-on-secondary py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-opacity active:scale-95 flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">send</span>
+                            문의 접수하기
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Success -->
+                <div id="success-msg" class="hidden bg-white border border-outline-variant rounded-xl p-12 text-center">
+                    <span class="material-symbols-outlined text-secondary text-6xl mb-6 block" style="font-variation-settings:'FILL' 1">check_circle</span>
+                    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">문의가 접수되었습니다!</h3>
+                    <p class="text-on-surface-variant font-body-md mb-8">담당자가 영업일 기준 1~2일 이내 연락드립니다.<br/>급한 사항은 02-1234-5678로 연락주세요.</p>
+                    <a href="index.html" class="inline-block bg-primary text-white px-8 py-3 rounded-lg font-bold hover:opacity-80 transition-opacity">홈으로 돌아가기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
+
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter px-margin-mobile md:px-margin-desktop py-16 max-w-container-max mx-auto">
+    <div>
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-4">JS Present Premium</h2>
+        <p class="font-label-sm text-label-sm text-on-surface/60 mb-8 max-w-xs">프리미엄 공공기관 전문 선물 큐레이션 파트너.</p>
+        <p class="font-label-sm text-label-sm text-on-surface opacity-50">© 2024 JS Present. Premium Public Procurement Partner.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-8">
+        <div class="flex flex-col gap-4">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">안내</h4>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">이용약관</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">개인정보처리방침</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="contact.html">고객센터</a>
+        </div>
+        <div class="flex flex-col gap-4">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">소셜</h4>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">인스타그램</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">링크드인</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm" href="#">네이버 블로그</a>
+            <a class="text-on-tertiary-container hover:underline font-label-sm text-label-sm text-outline" href="login.html">관리자</a>
+        </div>
+    </div>
+</div>
+</footer>
+
+<script>
+    function openDrawer() {
+        document.getElementById('drawer').classList.remove('-translate-x-full');
+        document.getElementById('drawer-overlay').classList.remove('hidden');
+    }
+    function closeDrawer() {
+        document.getElementById('drawer').classList.add('-translate-x-full');
+        document.getElementById('drawer-overlay').classList.add('hidden');
+    }
+
+    document.querySelector('input[name="phone"]').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length <= 3) this.value = v;
+        else if (v.length <= 7) this.value = v.slice(0,3)+'-'+v.slice(3);
+        else this.value = v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+    });
+
+    function submitContact(e) {
+        e.preventDefault();
+        const form = e.target;
+        let valid = true;
+
+        const typeVal = form.querySelector('input[name="type"]:checked');
+        if (!typeVal) {
+            document.getElementById('type-error').classList.remove('hidden');
+            valid = false;
+        } else {
+            document.getElementById('type-error').classList.add('hidden');
+        }
+
+        ['name','phone','content'].forEach(n => {
+            const f = form.querySelector(`[name="${n}"]`);
+            const err = f.parentElement.querySelector('.error-msg, #content-error');
+            const errEl = n === 'content' ? document.getElementById('content-error') : f.parentElement.querySelector('.error-msg');
+            if (!f.value.trim()) {
+                if (f.style) f.style.borderBottomColor = '#ba1a1a';
+                if (errEl) errEl.classList.remove('hidden');
+                valid = false;
+            } else {
+                if (f.style) f.style.borderBottomColor = '';
+                if (errEl) errEl.classList.add('hidden');
+            }
+        });
+
+        if (!valid) return;
+
+        const data = {
+            id: Date.now(),
+            type: typeVal.value,
+            name: form.name.value.trim(),
+            phone: form.phone.value.trim(),
+            order_no: form.order_no.value.trim(),
+            content: form.content.value.trim(),
+            status: '접수',
+            createdAt: new Date().toLocaleString('ko-KR')
+        };
+        const existing = JSON.parse(localStorage.getItem('contacts') || '[]');
+        existing.unshift(data);
+        localStorage.setItem('contacts', JSON.stringify(existing));
+
+        document.getElementById('contact-form').classList.add('hidden');
+        document.getElementById('success-msg').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('scroll', () => {
+        document.querySelector('header').classList.toggle('shadow-md', window.scrollY > 50);
+    });
+</script>
+</body>
+</html>

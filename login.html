@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>관리자 로그인 | JS 프레젠트</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;text-transform:none;letter-spacing:normal;word-wrap:normal;white-space:nowrap;direction:ltr;}
+    body{font-family:'Noto Sans',sans-serif;}
+</style>
+</head>
+<body class="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+
+<div class="w-full max-w-md">
+    <!-- Logo -->
+    <div class="text-center mb-8">
+        <a href="index.html" class="inline-block">
+            <h1 class="text-3xl font-black tracking-tighter text-gray-900">JS 프레젠트</h1>
+        </a>
+        <p class="text-gray-500 text-sm mt-2">관리자 전용 페이지</p>
+    </div>
+
+    <!-- Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">로그인</h2>
+
+        <div id="error-msg" class="hidden mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">error</span>
+            아이디 또는 비밀번호가 올바르지 않습니다.
+        </div>
+
+        <form onsubmit="doLogin(event)" class="flex flex-col gap-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">아이디</label>
+                <input id="login-id" type="text" placeholder="admin" autocomplete="username"
+                    class="w-full border-b-2 border-gray-200 py-3 text-gray-900 text-base placeholder:text-gray-300 focus:outline-none focus:border-gray-900 transition-colors bg-transparent"/>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">비밀번호</label>
+                <div class="relative">
+                    <input id="login-pw" type="password" placeholder="••••••••" autocomplete="current-password"
+                        class="w-full border-b-2 border-gray-200 py-3 text-gray-900 text-base placeholder:text-gray-300 focus:outline-none focus:border-gray-900 transition-colors bg-transparent pr-10"/>
+                    <button type="button" onclick="togglePw()" class="absolute right-0 top-3 text-gray-400 hover:text-gray-600">
+                        <span id="pw-icon" class="material-symbols-outlined text-xl">visibility_off</span>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="mt-2 w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-base hover:bg-gray-700 transition-colors active:scale-95 flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-xl">login</span>
+                로그인
+            </button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-gray-100 text-center">
+            <a href="index.html" class="text-sm text-gray-400 hover:text-gray-600 transition-colors">← 메인 페이지로 돌아가기</a>
+        </div>
+    </div>
+
+    <p class="text-center text-xs text-gray-400 mt-6">© 2024 JS Present Admin</p>
+</div>
+
+<script>
+    // Redirect if already logged in
+    if (localStorage.getItem('admin_logged_in') === '1') {
+        location.href = 'admin.html';
+    }
+
+    function doLogin(e) {
+        e.preventDefault();
+        const id = document.getElementById('login-id').value.trim();
+        const pw = document.getElementById('login-pw').value;
+        if (id === 'jsmart01' && pw === 'ks-10293035') {
+            localStorage.setItem('admin_logged_in', '1');
+            location.href = 'admin.html';
+        } else {
+            document.getElementById('error-msg').classList.remove('hidden');
+            document.getElementById('login-pw').value = '';
+        }
+    }
+
+    function togglePw() {
+        const input = document.getElementById('login-pw');
+        const icon = document.getElementById('pw-icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = 'visibility';
+        } else {
+            input.type = 'password';
+            icon.textContent = 'visibility_off';
+        }
+    }
+</script>
+</body>
+</html>
