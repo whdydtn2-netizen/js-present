@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>고객문의 | JS 프레젠트</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
     .material-symbols-outlined {
@@ -70,7 +70,16 @@
 <div id="drawer-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeDrawer()"></div>
 <aside id="drawer" class="fixed top-0 left-0 h-full w-64 bg-white z-50 shadow-xl transform -translate-x-full transition-transform duration-300 flex flex-col">
 <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
-    <span class="font-bold text-lg text-primary">JS 프레젠트</span>
+    <div class="flex items-center gap-2">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="30" height="30" rx="7" fill="#131b2e"/>
+            <path d="M15 5 L13 9 H17 Z" fill="#edc06e" opacity="0.85"/>
+            <path d="M13 9 Q10.5 9.5 11.3 12 Q11.7 13.5 13.5 13" stroke="#edc06e" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+            <path d="M17 9 Q19.5 9.5 18.7 12 Q18.3 13.5 16.5 13" stroke="#edc06e" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+            <text x="15" y="23" text-anchor="middle" fill="#edc06e" font-size="10" font-weight="900" font-family="Georgia,serif" letter-spacing="0.8">JS</text>
+        </svg>
+        <span style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:1rem;color:#000;letter-spacing:-0.02em;">JS 프레젠트</span>
+    </div>
     <span class="material-symbols-outlined cursor-pointer text-primary" onclick="closeDrawer()">close</span>
 </div>
 <nav class="flex flex-col px-4 py-6 gap-1">
@@ -86,7 +95,16 @@
 <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-unit max-w-container-max mx-auto">
     <div class="flex items-center gap-4">
         <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary" onclick="openDrawer()">menu</span>
-        <a href="index.html" class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary tracking-tighter">JS 프레젠트</a>
+        <a href="index.html" class="flex items-center gap-2.5">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="10" fill="#131b2e"/>
+                <path d="M20 7 L17.5 12 H22.5 Z" fill="#edc06e" opacity="0.85"/>
+                <path d="M17 12 Q13.5 12.5 14.5 16 Q15 18 17.5 17" stroke="#edc06e" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <path d="M23 12 Q26.5 12.5 25.5 16 Q25 18 22.5 17" stroke="#edc06e" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+                <text x="20" y="30" text-anchor="middle" fill="#edc06e" font-size="13" font-weight="900" font-family="Georgia,'Times New Roman',serif" letter-spacing="1">JS</text>
+            </svg>
+            <span style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:clamp(1.15rem,2.5vw,1.5rem);color:#000;letter-spacing:-0.025em;line-height:1.1;">JS <span style="font-weight:500;">프레젠트</span></span>
+        </a>
     </div>
     <div class="flex items-center gap-unit">
         <nav class="hidden md:flex gap-8 items-center mr-8">
