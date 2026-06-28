@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>상품 목록 | JS 프레젠트</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&family=Noto+Serif+KR:wght@500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
     .material-symbols-outlined {
@@ -90,10 +90,10 @@
                 },
                 "fontFamily": {
                     "label-sm": ["Inter"],
-                    "headline-md": ["Noto Sans"],
+                    "headline-md": ["Nanum Myeongjo", "serif"],
                     "body-lg": ["Noto Sans"],
-                    "display-lg": ["Noto Sans"],
-                    "display-lg-mobile": ["Noto Sans"],
+                    "display-lg": ["Nanum Myeongjo", "serif"],
+                    "display-lg-mobile": ["Nanum Myeongjo", "serif"],
                     "body-md": ["Noto Sans"]
                 },
                 "fontSize": {
@@ -117,13 +117,11 @@
 <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
     <div class="flex items-center gap-2">
         <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="30" height="30" rx="7" fill="#131b2e"/>
-            <path d="M15 5 L13 9 H17 Z" fill="#edc06e" opacity="0.85"/>
-            <path d="M13 9 Q10.5 9.5 11.3 12 Q11.7 13.5 13.5 13" stroke="#edc06e" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-            <path d="M17 9 Q19.5 9.5 18.7 12 Q18.3 13.5 16.5 13" stroke="#edc06e" stroke-width="1.1" fill="none" stroke-linecap="round"/>
-            <text x="15" y="23" text-anchor="middle" fill="#edc06e" font-size="10" font-weight="900" font-family="Georgia,serif" letter-spacing="0.8">JS</text>
+            <circle cx="15" cy="15" r="14" fill="#131b2e"/>
+            <circle cx="15" cy="15" r="12.5" stroke="#edc06e" stroke-width="0.8" fill="none" opacity="0.6"/>
+            <text x="15" y="20" text-anchor="middle" fill="#edc06e" font-size="11" font-weight="600" font-family="'Cormorant Garamond',Georgia,serif" letter-spacing="1.5">JS</text>
         </svg>
-        <span style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:1rem;color:#000;letter-spacing:-0.02em;">JS 프레젠트</span>
+        <span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:1.05rem;color:#131b2e;letter-spacing:0.12em;">JS <span style="font-weight:400;letter-spacing:0.18em;font-size:0.82em;">PRESENT</span></span>
     </div>
     <span class="material-symbols-outlined cursor-pointer text-primary" onclick="closeDrawer()">close</span>
 </div>
@@ -150,13 +148,11 @@
         <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary" onclick="openDrawer()">menu</span>
         <a href="index.html" class="flex items-center gap-2.5">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="40" height="40" rx="10" fill="#131b2e"/>
-                <path d="M20 7 L17.5 12 H22.5 Z" fill="#edc06e" opacity="0.85"/>
-                <path d="M17 12 Q13.5 12.5 14.5 16 Q15 18 17.5 17" stroke="#edc06e" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-                <path d="M23 12 Q26.5 12.5 25.5 16 Q25 18 22.5 17" stroke="#edc06e" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-                <text x="20" y="30" text-anchor="middle" fill="#edc06e" font-size="13" font-weight="900" font-family="Georgia,'Times New Roman',serif" letter-spacing="1">JS</text>
+                <circle cx="20" cy="20" r="19" fill="#131b2e"/>
+                <circle cx="20" cy="20" r="16.5" stroke="#edc06e" stroke-width="0.8" fill="none" opacity="0.6"/>
+                <text x="20" y="26" text-anchor="middle" fill="#edc06e" font-size="15" font-weight="600" font-family="'Cormorant Garamond',Georgia,serif" letter-spacing="2.5">JS</text>
             </svg>
-            <span style="font-family:'Noto Serif KR',serif;font-weight:700;font-size:clamp(1.15rem,2.5vw,1.5rem);color:#000;letter-spacing:-0.025em;line-height:1.1;">JS <span style="font-weight:500;">프레젠트</span></span>
+            <span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:clamp(1.1rem,2.5vw,1.4rem);color:#131b2e;letter-spacing:0.12em;line-height:1.1;">JS <span style="font-weight:400;letter-spacing:0.2em;font-size:0.78em;">PRESENT</span></span>
         </a>
     </div>
     <div class="flex items-center gap-unit">
