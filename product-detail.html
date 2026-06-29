@@ -76,6 +76,7 @@
     <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">home</span>홈</a>
     <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">inventory_2</span>상품 목록</a>
     <a href="inquiry.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">edit_note</span>견적문의</a>
+    <a href="cart.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">shopping_cart</span>장바구니</a>
     <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">support_agent</span>고객문의</a>
 </nav>
 </aside>
@@ -97,6 +98,10 @@
             <a class="text-on-surface-variant hover:text-primary transition-opacity" href="inquiry.html">견적문의</a>
             <a class="text-on-surface-variant hover:text-primary transition-opacity" href="contact.html">고객문의</a>
         </nav>
+        <a href="cart.html" title="장바구니" class="relative flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" style="font-size:20px">shopping_cart</span>
+            <span id="cart-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 items-center justify-center hidden">0</span>
+        </a>
         <a href="login.html" title="관리자 페이지" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors">
             <span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" style="font-size:20px">admin_panel_settings</span>
         </a>
@@ -282,18 +287,25 @@
 
             <!-- CTA -->
             <div class="flex flex-col sm:flex-row gap-3">
-                <a id="inquiry-link" href="inquiry.html"
-                    class="flex-1 bg-primary text-white text-center py-4 rounded-xl font-bold hover:bg-gray-800 active:scale-95 transition-all">
-                    견적 문의하기
-                </a>
-                <a href="products.html"
-                    class="flex-1 border-2 border-outline-variant text-on-surface text-center py-4 rounded-xl font-bold hover:bg-surface-container active:scale-95 transition-all">
-                    목록으로
-                </a>
+                <button onclick="orderNow()"
+                    class="flex-1 bg-primary text-white text-center py-4 rounded-xl font-bold hover:bg-gray-800 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">credit_card</span>바로 주문하기
+                </button>
+                <button onclick="addToCart()"
+                    class="flex-1 border-2 border-outline-variant text-on-surface text-center py-4 rounded-xl font-bold hover:bg-surface-container active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-base">shopping_cart</span>장바구니 담기
+                </button>
             </div>
         </div>
     </div>
 </main>
+
+<!-- Cart Toast -->
+<div id="cart-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-on-surface text-white px-5 py-3.5 rounded-2xl shadow-2xl text-sm font-bold transition-all duration-300 opacity-0 pointer-events-none translate-y-4 whitespace-nowrap">
+    <span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1">shopping_cart</span>
+    장바구니에 담았습니다
+    <a href="cart.html" class="ml-2 underline underline-offset-2 text-secondary-fixed-dim hover:text-secondary-fixed-dim/80 transition-colors">바로가기 →</a>
+</div>
 
 <!-- Footer -->
 <footer class="w-full bg-surface-container-lowest border-t border-outline-variant mt-16">
@@ -415,15 +427,13 @@ function initPage(p) {
     document.getElementById('copper-unit-label').textContent   = cc > 0 ? `개당 +${cc.toLocaleString()}원` : '단가 문의';
     document.getElementById('packaging-unit-label').textContent = pc > 0 ? `개당 +${pc.toLocaleString()}원` : '단가 문의';
 
-    // Inquiry link
-    document.getElementById('inquiry-link').href = 'inquiry.html?product=' + encodeURIComponent(p.name);
-
     // Slider
     const images = [p.image, ...(p.gallery || [])].filter(Boolean);
     initSlider(images);
 
-    // Quote
+    // Quote & cart count
     updateQuote();
+    updateCartCount();
 }
 
 // ─── Image Slider ─────────────────────────────────────
@@ -559,6 +569,79 @@ function setOptRow(key, on, total, calcId, rowId, amtId) {
         amtEl.textContent = on ? total.toLocaleString() + '원' : '';
         amtEl.classList.toggle('hidden', !on);
     }
+}
+
+// ─── Cart & Order ─────────────────────────────────────
+function buildCartItem() {
+    const qty = Math.max(30, parseInt(document.getElementById('qty-input').value) || 30);
+    const margin = getMarginRate(qty);
+    const pricePerUnit = Math.ceil(product.unitCost * (1 + margin));
+    const stickerOn   = document.getElementById('opt-sticker').checked;
+    const copperOn    = document.getElementById('opt-copper').checked;
+    const packagingOn = document.getElementById('opt-packaging').checked;
+    const sc = product.stickerCost   || 0;
+    const cc = product.copperCost    || 0;
+    const pc = product.packagingCost || 0;
+    const stickerTotal   = stickerOn   ? sc * qty : 0;
+    const copperTotal    = copperOn    ? cc * qty : 0;
+    const packagingTotal = packagingOn ? pc * qty : 0;
+    const totalPrice = pricePerUnit * qty + stickerTotal + copperTotal + packagingTotal;
+    return {
+        productId: product.id,
+        name: product.name,
+        image: product.image,
+        category: getCategoryName(product.category),
+        qty,
+        pricePerUnit,
+        options: { sticker: stickerOn, copper: copperOn, packaging: packagingOn },
+        stickerCost: sc, copperCost: cc, packagingCost: pc,
+        stickerTotal, copperTotal, packagingTotal,
+        totalPrice,
+        addedAt: Date.now()
+    };
+}
+
+function addToCart() {
+    if (!product) return;
+    const item = buildCartItem();
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const idx = cart.findIndex(c => c.productId === item.productId);
+    if (idx > -1) cart[idx] = item; else cart.push(item);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    showCartToast();
+}
+
+function orderNow() {
+    if (!product) return;
+    const item = buildCartItem();
+    sessionStorage.setItem('directOrder', JSON.stringify([item]));
+    window.location.href = 'checkout.html?direct=1';
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const badge = document.getElementById('cart-badge');
+    if (!badge) return;
+    if (cart.length > 0) {
+        badge.textContent = cart.length > 9 ? '9+' : cart.length;
+        badge.classList.remove('hidden');
+        badge.classList.add('flex');
+    } else {
+        badge.classList.add('hidden');
+        badge.classList.remove('flex');
+    }
+}
+
+function showCartToast() {
+    const toast = document.getElementById('cart-toast');
+    toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+    toast.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+        toast.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }, 3000);
 }
 
 // ─── Nav ─────────────────────────────────────────────

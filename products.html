@@ -142,6 +142,18 @@
 <!-- Product Grid -->
 <section class="py-16 md:py-24">
     <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
+        <!-- AI 큐레이션 결과 배너 -->
+        <div id="ai-banner" class="hidden mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-amber-600" style="font-variation-settings:'FILL' 1">auto_awesome</span>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-amber-800 text-sm">AI 큐레이션 결과</p>
+                    <p id="ai-query-text" class="text-amber-700 text-xs mt-0.5 truncate"></p>
+                </div>
+                <button onclick="clearAiSearch()" class="flex-shrink-0 text-xs font-bold text-amber-700 border border-amber-300 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors">전체 보기</button>
+            </div>
+        </div>
+
         <div class="flex justify-between items-center mb-8">
             <p class="text-on-surface-variant text-sm">총 <span id="product-count" class="font-bold text-on-surface">0</span>개 상품</p>
             <div class="flex items-center gap-2">
@@ -158,7 +170,8 @@
 
         <div id="no-result" class="hidden text-center py-24 text-on-surface-variant">
             <span class="material-symbols-outlined text-5xl mb-4 block">search_off</span>
-            <p class="text-lg">해당 카테고리의 상품이 없습니다.</p>
+            <p id="no-result-msg" class="text-lg">해당 카테고리의 상품이 없습니다.</p>
+            <button id="no-result-clear" class="hidden mt-4 text-sm font-bold text-secondary hover:underline" onclick="clearAiSearch()">전체 상품 보기</button>
         </div>
     </div>
 </section>
@@ -212,14 +225,14 @@ const IMG = {
 };
 
 const DEFAULT_PRODUCTS = [
-    {id:1, name:'시그니처 가죽 사무 세트',   category:'office',      desc:'공공기관 행정용 / VIP 기념품',  unitCost:35000, badge:'BEST', image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:2, name:'프리미엄 웰니스 티 세트',    category:'wellness',    desc:'명절 선물 / 임직원 감사용',      unitCost:42000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:3, name:'스마트 오피스 테크 패키지',   category:'tech',        desc:'신입사원 웰컴키트 / 워크샵',     unitCost:58000, badge:'NEW',  image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:4, name:'전통 자개 문구 트레이',       category:'traditional', desc:'외빈 초청 / 한국 전통 선물',     unitCost:89000, badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:5, name:'고급 볼펜 & 노트 세트',       category:'office',      desc:'행사 기념품 / 강연 답례',        unitCost:22000, badge:'',     image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:6, name:'프리미엄 향초 & 디퓨저 세트', category:'wellness',    desc:'VIP 감사 / 개업 축하',           unitCost:67000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:7, name:'무선 충전 패드 세트',          category:'tech',        desc:'임직원 복지 / 기업 답례',        unitCost:45000, badge:'',     image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
-    {id:8, name:'한지 공예 박스 세트',           category:'traditional', desc:'외교 선물 / 기관 기념품',       unitCost:115000,badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:1, name:'시그니처 가죽 사무 세트',   category:'office',      desc:'공공기관 행정용 / VIP 기념품',  unitCost:35000, badge:'BEST', image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['공공기관','행정','VIP','기념품','사무용','답례']},
+    {id:2, name:'프리미엄 웰니스 티 세트',    category:'wellness',    desc:'명절 선물 / 임직원 감사용',      unitCost:42000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['명절선물','임직원','감사','추석','설날','건강']},
+    {id:3, name:'스마트 오피스 테크 패키지',   category:'tech',        desc:'신입사원 웰컴키트 / 워크샵',     unitCost:58000, badge:'NEW',  image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['신입사원','웰컴키트','워크샵','IT기업','기업답례']},
+    {id:4, name:'전통 자개 문구 트레이',       category:'traditional', desc:'외빈 초청 / 한국 전통 선물',     unitCost:89000, badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['외빈','전통','한국','외교','VIP','기관']},
+    {id:5, name:'고급 볼펜 & 노트 세트',       category:'office',      desc:'행사 기념품 / 강연 답례',        unitCost:22000, badge:'',     image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['행사','기념품','강연','세미나','답례','소량']},
+    {id:6, name:'프리미엄 향초 & 디퓨저 세트', category:'wellness',    desc:'VIP 감사 / 개업 축하',           unitCost:67000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['VIP','개업축하','감사','프리미엄','인테리어']},
+    {id:7, name:'무선 충전 패드 세트',          category:'tech',        desc:'임직원 복지 / 기업 답례',        unitCost:45000, badge:'',     image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['임직원','복지','기업답례','테크','IT','실용']},
+    {id:8, name:'한지 공예 박스 세트',           category:'traditional', desc:'외교 선물 / 기관 기념품',       unitCost:115000,badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0, keywords:['외교','기관','전통공예','한지','고급','VIP']},
 ];
 
 // ─── Categories ──────────────────────────────────────
@@ -267,16 +280,48 @@ const BADGE_HTML = {
 let currentFilter = 'all';
 let allProducts = [];
 
+// ─── AI 큐레이션 매칭 ─────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const aiQuery = urlParams.get('ai') || '';
+
+function aiTokenize(q) {
+    return q.toLowerCase().split(/[\s,#\/]+/).filter(t => t.length >= 2);
+}
+
+function aiMatch(product, tokens) {
+    if (!tokens.length) return true;
+    const keywords = (product.keywords || []).map(k => k.toLowerCase());
+    const name = (product.name || '').toLowerCase();
+    const desc = (product.desc || '').toLowerCase();
+    return tokens.some(token =>
+        keywords.some(k => k.includes(token) || token.includes(k)) ||
+        name.includes(token) ||
+        desc.includes(token)
+    );
+}
+
+function clearAiSearch() {
+    history.replaceState(null, '', location.pathname);
+    location.reload();
+}
+
 function renderProducts() {
     allProducts = getProducts();
     const grid = document.getElementById('product-grid');
+    const aiTokens = aiTokenize(aiQuery);
+
+    if (aiQuery) {
+        document.getElementById('ai-banner').classList.remove('hidden');
+        document.getElementById('ai-query-text').textContent = `"${aiQuery}" 검색 결과`;
+    }
 
     grid.innerHTML = allProducts.map(p => {
         const unitCost = p.unitCost || 0;
         const minPrice = getMinPrice(unitCost);
+        const isAiMatch = aiMatch(p, aiTokens);
         return `
         <div class="product-card bg-white border border-outline-variant p-4 rounded-lg transition-transform hover:-translate-y-2 group"
-             data-category="${p.category}" data-id="${p.id}" data-price="${unitCost}"
+             data-category="${p.category}" data-id="${p.id}" data-price="${unitCost}" data-ai="${isAiMatch}"
              onclick="goToDetail(${p.id})">
             <div class="relative aspect-square mb-4 bg-surface rounded overflow-hidden">
                 <img class="w-full h-full object-cover" src="${p.image || ''}" alt="${p.name}"
@@ -316,13 +361,23 @@ function applyFilter() {
 
     let visible = 0;
     cards.forEach(card => {
-        const match = currentFilter === 'all' || card.dataset.category === currentFilter;
+        const catMatch = currentFilter === 'all' || card.dataset.category === currentFilter;
+        const aiOk = !aiQuery || card.dataset.ai === 'true';
+        const match = catMatch && aiOk;
         card.style.display = match ? '' : 'none';
         if (match) visible++;
     });
 
     document.getElementById('product-count').textContent = visible;
-    document.getElementById('no-result').classList.toggle('hidden', visible > 0);
+    const noRes = visible === 0;
+    document.getElementById('no-result').classList.toggle('hidden', !noRes);
+    if (noRes && aiQuery) {
+        document.getElementById('no-result-msg').textContent = '검색어와 일치하는 상품이 없습니다.';
+        document.getElementById('no-result-clear').classList.remove('hidden');
+    } else {
+        document.getElementById('no-result-msg').textContent = '해당 카테고리의 상품이 없습니다.';
+        document.getElementById('no-result-clear').classList.add('hidden');
+    }
 
     if (sortVal !== 'default') {
         const grid = document.getElementById('product-grid');
