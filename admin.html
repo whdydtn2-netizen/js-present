@@ -22,11 +22,12 @@
     .badge-완료{background:#d1fae5;color:#065f46;}
     .badge-처리중{background:#fef3c7;color:#92400e;}
     .badge-배송중{background:#dbeafe;color:#1e40af;}
+    .gallery-slot{transition:border-color .15s;}
+    .gallery-slot:hover{border-color:#374151;}
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-<!-- Layout -->
 <div class="flex min-h-screen">
 
     <!-- Sidebar -->
@@ -39,6 +40,9 @@
             <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-3 pt-3 pb-1">메뉴</div>
             <div class="nav-item active" onclick="switchTab('products')">
                 <span class="material-symbols-outlined text-xl">inventory_2</span>상품 관리
+            </div>
+            <div class="nav-item" onclick="switchTab('categories')">
+                <span class="material-symbols-outlined text-xl">category</span>카테고리 관리
             </div>
             <div class="nav-item" onclick="switchTab('orders')">
                 <span class="material-symbols-outlined text-xl">receipt_long</span>주문 확인
@@ -74,7 +78,7 @@
 
         <main class="flex-1 p-8">
 
-            <!-- ===== 상품 관리 ===== -->
+            <!-- 상품 관리 -->
             <div id="tab-products" class="tab-content active">
                 <div class="flex justify-between items-center mb-6">
                     <p class="text-gray-500 text-sm">상품 이미지, 가격, 이름을 수정하거나 새 상품을 추가할 수 있습니다.</p>
@@ -85,7 +89,18 @@
                 <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
             </div>
 
-            <!-- ===== 주문 확인 ===== -->
+            <!-- 카테고리 관리 -->
+            <div id="tab-categories" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="text-gray-500 text-sm">카테고리를 자유롭게 추가·수정·삭제할 수 있습니다. 상품 등록 시 여기서 만든 카테고리가 목록에 나타납니다.</p>
+                    <button onclick="openCategoryModal()" class="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-700 transition-colors">
+                        <span class="material-symbols-outlined text-base">add</span>카테고리 추가
+                    </button>
+                </div>
+                <div id="category-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+            <!-- 주문 확인 -->
             <div id="tab-orders" class="tab-content">
                 <p class="text-gray-500 text-sm mb-6">접수된 주문 목록입니다.</p>
                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -106,7 +121,7 @@
                 </div>
             </div>
 
-            <!-- ===== 견적문의 ===== -->
+            <!-- 견적문의 -->
             <div id="tab-quotes" class="tab-content">
                 <p class="text-gray-500 text-sm mb-6">견적문의 페이지에서 접수된 요청입니다.</p>
                 <div id="quotes-list" class="flex flex-col gap-4"></div>
@@ -116,7 +131,7 @@
                 </div>
             </div>
 
-            <!-- ===== 고객문의 ===== -->
+            <!-- 고객문의 -->
             <div id="tab-contacts" class="tab-content">
                 <p class="text-gray-500 text-sm mb-6">고객문의 페이지에서 접수된 문의입니다.</p>
                 <div id="contacts-list" class="flex flex-col gap-4"></div>
@@ -130,10 +145,35 @@
     </div>
 </div>
 
-<!-- ===== 상품 추가/수정 모달 ===== -->
-<div id="product-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+<!-- 카테고리 추가/수정 모달 -->
+<div id="category-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-sm shadow-xl">
         <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100">
+            <h3 id="cat-modal-title" class="font-bold text-gray-900 text-lg">카테고리 추가</h3>
+            <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-700">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form onsubmit="saveCategory(event)" class="p-6 flex flex-col gap-5">
+            <input type="hidden" id="edit-category-id"/>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">카테고리 이름 *</label>
+                <input id="cat-name" type="text" placeholder="예: 식품, 뷰티, 스포츠" required maxlength="20"
+                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
+                <p class="text-xs text-gray-400 mt-1">상품 목록 필터와 상품 등록 폼에 표시됩니다.</p>
+            </div>
+            <div class="flex gap-3 pt-1">
+                <button type="button" onclick="closeCategoryModal()" class="flex-1 border border-gray-200 text-gray-700 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition-colors">취소</button>
+                <button type="submit" class="flex-1 bg-gray-900 text-white py-3 rounded-xl font-bold text-sm hover:bg-gray-700 transition-colors">저장</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 상품 추가/수정 모달 -->
+<div id="product-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-xl">
+        <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100 sticky top-0 bg-white z-10">
             <h3 id="modal-title" class="font-bold text-gray-900 text-lg">상품 추가</h3>
             <button onclick="closeProductModal()" class="text-gray-400 hover:text-gray-700">
                 <span class="material-symbols-outlined">close</span>
@@ -142,21 +182,17 @@
         <form onsubmit="saveProduct(event)" class="p-6 flex flex-col gap-5">
             <input type="hidden" id="edit-product-id"/>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">상품명 *</label>
-                <input id="p-name" type="text" placeholder="예: 시그니처 가죽 사무 세트" required
-                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
-            </div>
-
+            <!-- 기본 정보 -->
             <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">상품명 *</label>
+                    <input id="p-name" type="text" placeholder="예: 시그니처 가죽 사무 세트" required
+                        class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
+                </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">카테고리 *</label>
                     <select id="p-category" class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 bg-transparent text-sm" required>
                         <option value="">선택</option>
-                        <option value="office">사무용품</option>
-                        <option value="wellness">웰니스</option>
-                        <option value="tech">테크</option>
-                        <option value="traditional">전통공예</option>
                     </select>
                 </div>
                 <div>
@@ -168,34 +204,65 @@
                         <option value="SALE">SALE</option>
                     </select>
                 </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">설명</label>
-                <input id="p-desc" type="text" placeholder="예: 공공기관 행정용 / VIP 기념품"
-                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">가격 (원) *</label>
-                <input id="p-price" type="number" placeholder="예: 35000" min="0" required
-                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">이미지 URL</label>
-                <input id="p-image-url" type="url" placeholder="https://..."
-                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
-                <p class="text-gray-400 text-xs mt-1">또는 아래에서 파일 업로드</p>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">이미지 파일 업로드</label>
-                <input id="p-image-file" type="file" accept="image/*" onchange="previewImage(event)"
-                    class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 file:font-bold hover:file:bg-gray-200 cursor-pointer"/>
-                <div id="img-preview-wrap" class="mt-3 hidden">
-                    <img id="img-preview" class="w-full h-40 object-cover rounded-lg border border-gray-200"/>
+                <div class="col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">설명</label>
+                    <input id="p-desc" type="text" placeholder="예: 공공기관 행정용 / VIP 기념품"
+                        class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm"/>
                 </div>
+            </div>
+
+            <!-- 단가 및 옵션 단가 -->
+            <div class="bg-amber-50 rounded-xl p-4">
+                <label class="block text-xs font-bold text-amber-800 uppercase tracking-wider mb-3">단가 설정 (원가 기준 — 고객가는 수량별 마진 자동 적용)</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="text-xs text-gray-600 font-bold mb-1 block">상품 단가 (원) *</label>
+                        <input id="p-price" type="number" placeholder="예: 35000" min="0" required
+                            class="w-full border-b-2 border-amber-300 py-2 text-gray-900 focus:outline-none focus:border-amber-600 bg-transparent text-sm font-bold"/>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block">스티커 단가 (원/개)</label>
+                        <input id="p-sticker" type="number" placeholder="0" min="0" value="0"
+                            class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 bg-transparent text-sm"/>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block">동판인쇄 단가 (원/개)</label>
+                        <input id="p-copper" type="number" placeholder="0" min="0" value="0"
+                            class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 bg-transparent text-sm"/>
+                    </div>
+                    <div>
+                        <label class="text-xs text-gray-600 mb-1 block">포장 단가 (원/개)</label>
+                        <input id="p-packaging" type="number" placeholder="0" min="0" value="0"
+                            class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 bg-transparent text-sm"/>
+                    </div>
+                </div>
+                <p class="text-xs text-amber-700 mt-2">마진율: 30~99개 25% / 100~299개 20% / 300~999개 12% / 1000개~ 10%</p>
+            </div>
+
+            <!-- 메인 이미지 -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">메인 사진</label>
+                <input id="p-image-url" type="url" placeholder="https://... (이미지 URL)"
+                    class="w-full border-b-2 border-gray-200 py-2 text-gray-900 focus:outline-none focus:border-gray-900 transition-colors bg-transparent text-sm mb-2"/>
+                <div class="flex items-center gap-3">
+                    <label class="cursor-pointer flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-base">upload</span>파일 업로드
+                        <input id="p-image-file" type="file" accept="image/*" onchange="previewMainImage(event)" class="hidden"/>
+                    </label>
+                    <div id="img-preview-wrap" class="hidden">
+                        <img id="img-preview" class="h-14 w-14 object-cover rounded-lg border border-gray-200"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 갤러리 이미지 -->
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">갤러리 사진 (최대 5장)</label>
+                <div id="gallery-list" class="flex flex-col gap-2 mb-2"></div>
+                <button type="button" id="add-gallery-btn" onclick="addGalleryItem()"
+                    class="flex items-center gap-2 justify-center w-full border-2 border-dashed border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 rounded-xl py-2.5 text-sm transition-colors">
+                    <span class="material-symbols-outlined text-base">add_photo_alternate</span>갤러리 사진 추가
+                </button>
             </div>
 
             <div class="flex gap-3 pt-2">
@@ -223,29 +290,53 @@ const IMG = {
     traditional: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBz_r8T2rA3jMe13OAL3gBvQ5u8e3KOKUp5B9SI3ORhrnJpNBfenFC1eC0dTJbg1gPFHOATlZ-uEo3pINkd-7L7w_pJ3DVsHgPUTUKcw0HE6WTI_D1I4cZiCPvoSKKGR89-fvDfT-weYCUWwbUiuIoC-fD_TjN-aNnL19GaoMtm2Vl5HZCzOFl0hHI53LU662rN2KxkR3RuL1eqywU5Xx9oTvqMWyZ6mzpfzk7ZLfC7oNLhapoudC5wvaFCeP8ZLprOZM6BxydQCgI'
 };
 
+// ─── Categories ──────────────────────────────────────
+const DEFAULT_CATEGORIES = [
+    {id: 'office',      name: '사무용품'},
+    {id: 'wellness',    name: '웰니스'},
+    {id: 'tech',        name: '테크'},
+    {id: 'traditional', name: '전통공예'},
+];
+
+function getCategories() {
+    const saved = localStorage.getItem('categories');
+    return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
+}
+function saveCategories(arr) {
+    localStorage.setItem('categories', JSON.stringify(arr));
+}
+function getCategoryName(id) {
+    return (getCategories().find(c => c.id === id) || {name: id}).name;
+}
+
 const DEFAULT_PRODUCTS = [
-    {id:1, name:'시그니처 가죽 사무 세트',   category:'office',      desc:'공공기관 행정용 / VIP 기념품',  price:35000, badge:'BEST', image:IMG.office},
-    {id:2, name:'프리미엄 웰니스 티 세트',    category:'wellness',    desc:'명절 선물 / 임직원 감사용',      price:42000, badge:'',     image:IMG.wellness},
-    {id:3, name:'스마트 오피스 테크 패키지',   category:'tech',        desc:'신입사원 웰컴키트 / 워크샵',     price:58000, badge:'NEW',  image:IMG.tech},
-    {id:4, name:'전통 자개 문구 트레이',       category:'traditional', desc:'외빈 초청 / 한국 전통 선물',     price:89000, badge:'',     image:IMG.traditional},
-    {id:5, name:'고급 볼펜 & 노트 세트',       category:'office',      desc:'행사 기념품 / 강연 답례',        price:22000, badge:'',     image:IMG.office},
-    {id:6, name:'프리미엄 향초 & 디퓨저 세트', category:'wellness',    desc:'VIP 감사 / 개업 축하',           price:67000, badge:'',     image:IMG.wellness},
-    {id:7, name:'무선 충전 패드 세트',          category:'tech',        desc:'임직원 복지 / 기업 답례',        price:45000, badge:'',     image:IMG.tech},
-    {id:8, name:'한지 공예 박스 세트',           category:'traditional', desc:'외교 선물 / 기관 기념품',       price:115000,badge:'',     image:IMG.traditional},
+    {id:1, name:'시그니처 가죽 사무 세트',   category:'office',      desc:'공공기관 행정용 / VIP 기념품',  unitCost:35000, badge:'BEST', image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:2, name:'프리미엄 웰니스 티 세트',    category:'wellness',    desc:'명절 선물 / 임직원 감사용',      unitCost:42000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:3, name:'스마트 오피스 테크 패키지',   category:'tech',        desc:'신입사원 웰컴키트 / 워크샵',     unitCost:58000, badge:'NEW',  image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:4, name:'전통 자개 문구 트레이',       category:'traditional', desc:'외빈 초청 / 한국 전통 선물',     unitCost:89000, badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:5, name:'고급 볼펜 & 노트 세트',       category:'office',      desc:'행사 기념품 / 강연 답례',        unitCost:22000, badge:'',     image:IMG.office,      gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:6, name:'프리미엄 향초 & 디퓨저 세트', category:'wellness',    desc:'VIP 감사 / 개업 축하',           unitCost:67000, badge:'',     image:IMG.wellness,    gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:7, name:'무선 충전 패드 세트',          category:'tech',        desc:'임직원 복지 / 기업 답례',        unitCost:45000, badge:'',     image:IMG.tech,        gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
+    {id:8, name:'한지 공예 박스 세트',           category:'traditional', desc:'외교 선물 / 기관 기념품',       unitCost:115000,badge:'',     image:IMG.traditional, gallery:[], stickerCost:0, copperCost:0, packagingCost:0},
 ];
 
 const MOCK_ORDERS = [];
 
 function getProducts() {
     const saved = localStorage.getItem('products');
-    return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
+    if (!saved) return DEFAULT_PRODUCTS;
+    return JSON.parse(saved).map(p => ({
+        gallery: [], stickerCost: 0, copperCost: 0, packagingCost: 0,
+        unitCost: p.unitCost || p.price || 0,
+        ...p
+    }));
 }
 function saveProducts(arr) {
     localStorage.setItem('products', JSON.stringify(arr));
 }
 
 // ─── Tab switching ───────────────────────────────────
-const TAB_TITLES = {products:'상품 관리', orders:'주문 확인', quotes:'견적문의', contacts:'고객문의'};
+const TAB_TITLES = {products:'상품 관리', categories:'카테고리 관리', orders:'주문 확인', quotes:'견적문의', contacts:'고객문의'};
 
 function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -255,83 +346,104 @@ function switchTab(name) {
         if (n.getAttribute('onclick') === `switchTab('${name}')`) n.classList.add('active');
     });
     document.getElementById('page-title').textContent = TAB_TITLES[name];
-
-    if (name === 'products') renderProducts();
-    if (name === 'orders')   renderOrders();
-    if (name === 'quotes')   renderList('quotes');
-    if (name === 'contacts') renderList('contacts');
+    if (name === 'products')   renderProducts();
+    if (name === 'categories') renderCategories();
+    if (name === 'orders')     renderOrders();
+    if (name === 'quotes')     renderList('quotes');
+    if (name === 'contacts')   renderList('contacts');
 }
 
 // ─── Products ─────────────────────────────────────────
-const CAT_KO = {office:'사무용품', wellness:'웰니스', tech:'테크', traditional:'전통공예'};
+
+function getMinDisplayPrice(unitCost) {
+    return Math.ceil(unitCost * 1.25);
+}
 
 function renderProducts() {
     const products = getProducts();
     const grid = document.getElementById('product-grid');
-    grid.innerHTML = products.map(p => `
+    grid.innerHTML = products.map(p => {
+        const unitCost = p.unitCost || p.price || 0;
+        const galleryCount = (p.gallery || []).filter(Boolean).length;
+        return `
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden group">
             <div class="relative aspect-square bg-gray-100">
-                <img src="${p.image || ''}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f3f4f6%22 width=%22100%22 height=%22100%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%239ca3af%22 font-size=%2212%22>이미지 없음</text></svg>'"/>
+                <img src="${p.image || ''}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.style.display='none'"/>
                 ${p.badge ? `<span class="absolute top-2 left-2 bg-yellow-600 text-white text-xs px-2 py-0.5 rounded font-bold">${p.badge}</span>` : ''}
-                <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors"></div>
+                ${galleryCount > 0 ? `<span class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">+${galleryCount}장</span>` : ''}
             </div>
             <div class="p-4">
-                <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">${CAT_KO[p.category] || p.category}</span>
+                <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">${getCategoryName(p.category)}</span>
                 <h4 class="font-bold text-gray-900 mt-2 mb-0.5 text-sm leading-snug">${p.name}</h4>
-                <p class="text-gray-400 text-xs mb-3">${p.desc || ''}</p>
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-gray-900">${Number(p.price).toLocaleString()}원~</span>
-                    <div class="flex gap-2">
-                        <button onclick="openProductModal(${p.id})" class="text-xs px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold transition-colors">수정</button>
-                        <button onclick="deleteProduct(${p.id})" class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-bold transition-colors">삭제</button>
-                    </div>
+                <p class="text-gray-400 text-xs mb-1">${p.desc || ''}</p>
+                <p class="text-xs text-gray-500 mb-3">원가 ${Number(unitCost).toLocaleString()}원 → 최소 ${getMinDisplayPrice(unitCost).toLocaleString()}원~</p>
+                <div class="flex justify-end gap-2">
+                    <button onclick="openProductModal(${p.id})" class="text-xs px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold transition-colors">수정</button>
+                    <button onclick="deleteProduct(${p.id})" class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-bold transition-colors">삭제</button>
                 </div>
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 function deleteProduct(id) {
     if (!confirm('이 상품을 삭제하시겠습니까?')) return;
-    const products = getProducts().filter(p => p.id !== id);
-    saveProducts(products);
+    saveProducts(getProducts().filter(p => p.id !== id));
     renderProducts();
 }
 
 // ─── Product Modal ────────────────────────────────────
 let editingId = null;
-let uploadedImageData = null;
+let uploadedMainImage = null;
+let galleryItems = [];
+
+function populateCategorySelect(selectedId) {
+    const sel = document.getElementById('p-category');
+    sel.innerHTML = '<option value="">선택</option>' +
+        getCategories().map(c =>
+            `<option value="${c.id}" ${c.id === selectedId ? 'selected' : ''}>${c.name}</option>`
+        ).join('');
+}
 
 function openProductModal(id) {
     editingId = id || null;
-    uploadedImageData = null;
+    uploadedMainImage = null;
+    galleryItems = [];
+
     document.getElementById('img-preview-wrap').classList.add('hidden');
     document.getElementById('p-image-file').value = '';
 
     if (id) {
         const p = getProducts().find(x => x.id === id);
         if (!p) return;
+        populateCategorySelect(p.category);
         document.getElementById('modal-title').textContent = '상품 수정';
         document.getElementById('p-name').value = p.name;
-        document.getElementById('p-category').value = p.category;
         document.getElementById('p-badge').value = p.badge || '';
         document.getElementById('p-desc').value = p.desc || '';
-        document.getElementById('p-price').value = p.price;
+        document.getElementById('p-price').value = p.unitCost || p.price || '';
+        document.getElementById('p-sticker').value = p.stickerCost || 0;
+        document.getElementById('p-copper').value = p.copperCost || 0;
+        document.getElementById('p-packaging').value = p.packagingCost || 0;
         document.getElementById('p-image-url').value = p.image && !p.image.startsWith('data:') ? p.image : '';
         if (p.image && p.image.startsWith('data:')) {
-            uploadedImageData = p.image;
+            uploadedMainImage = p.image;
             document.getElementById('img-preview').src = p.image;
             document.getElementById('img-preview-wrap').classList.remove('hidden');
         }
+        galleryItems = [...(p.gallery || [])];
     } else {
+        populateCategorySelect('');
         document.getElementById('modal-title').textContent = '상품 추가';
-        document.getElementById('p-name').value = '';
-        document.getElementById('p-category').value = '';
+        ['p-name','p-desc','p-image-url'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('p-badge').value = '';
-        document.getElementById('p-desc').value = '';
         document.getElementById('p-price').value = '';
-        document.getElementById('p-image-url').value = '';
+        document.getElementById('p-sticker').value = 0;
+        document.getElementById('p-copper').value = 0;
+        document.getElementById('p-packaging').value = 0;
     }
+
+    renderGalleryList();
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -339,49 +451,105 @@ function closeProductModal() {
     document.getElementById('product-modal').classList.add('hidden');
 }
 
-function previewImage(e) {
+function previewMainImage(e) {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = ev => {
-        uploadedImageData = ev.target.result;
-        document.getElementById('img-preview').src = uploadedImageData;
+        uploadedMainImage = ev.target.result;
+        document.getElementById('img-preview').src = uploadedMainImage;
         document.getElementById('img-preview-wrap').classList.remove('hidden');
         document.getElementById('p-image-url').value = '';
     };
     reader.readAsDataURL(file);
 }
 
+// ─── Gallery Management ───────────────────────────────
+function renderGalleryList() {
+    const list = document.getElementById('gallery-list');
+    list.innerHTML = galleryItems.map((img, i) => `
+        <div class="gallery-slot flex items-center gap-3 p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+            <div class="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 border border-gray-200">
+                ${img
+                    ? `<img src="${img}" class="w-full h-full object-cover" onerror="this.style.opacity='0.3'"/>`
+                    : `<div class="w-full h-full flex items-center justify-center"><span class="material-symbols-outlined text-gray-400" style="font-size:18px">image</span></div>`
+                }
+            </div>
+            <div class="flex-1 min-w-0">
+                <input type="url" placeholder="이미지 URL 입력 (또는 파일 업로드)"
+                    value="${img && !img.startsWith('data:') ? img : ''}"
+                    onchange="setGalleryUrl(${i}, this.value)"
+                    class="w-full text-xs border-b border-gray-300 py-1 focus:outline-none focus:border-gray-900 bg-transparent text-gray-900"/>
+                ${img && img.startsWith('data:') ? '<span class="text-xs text-green-600 mt-0.5 block">✓ 파일 업로드됨</span>' : ''}
+            </div>
+            <label class="cursor-pointer flex items-center gap-1 text-xs text-gray-500 hover:text-gray-900 bg-white border border-gray-200 rounded-lg px-2 py-1.5 transition-colors flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-size:14px">upload</span>
+                <input type="file" accept="image/*" class="hidden" onchange="uploadGalleryFile(${i}, this)"/>
+            </label>
+            <button type="button" onclick="removeGalleryItem(${i})"
+                class="text-red-400 hover:text-red-600 flex-shrink-0 p-1 rounded transition-colors">
+                <span class="material-symbols-outlined" style="font-size:18px">close</span>
+            </button>
+        </div>
+    `).join('');
+
+    const addBtn = document.getElementById('add-gallery-btn');
+    addBtn.style.display = galleryItems.length >= 5 ? 'none' : '';
+}
+
+function addGalleryItem() {
+    if (galleryItems.length >= 5) return;
+    galleryItems.push('');
+    renderGalleryList();
+}
+
+function setGalleryUrl(i, url) {
+    galleryItems[i] = url;
+}
+
+function uploadGalleryFile(i, input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+        galleryItems[i] = ev.target.result;
+        renderGalleryList();
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeGalleryItem(i) {
+    galleryItems.splice(i, 1);
+    renderGalleryList();
+}
+
+// ─── Save Product ─────────────────────────────────────
 function saveProduct(e) {
     e.preventDefault();
     const products = getProducts();
     const imageUrl = document.getElementById('p-image-url').value.trim();
-    const finalImage = uploadedImageData || imageUrl || (editingId ? (products.find(x=>x.id===editingId)||{}).image : '') || '';
+    const existingImage = editingId ? (products.find(x => x.id === editingId) || {}).image : '';
+    const finalImage = uploadedMainImage || imageUrl || existingImage || '';
+
+    const data = {
+        name:         document.getElementById('p-name').value.trim(),
+        category:     document.getElementById('p-category').value,
+        badge:        document.getElementById('p-badge').value,
+        desc:         document.getElementById('p-desc').value.trim(),
+        unitCost:     Number(document.getElementById('p-price').value) || 0,
+        stickerCost:  Number(document.getElementById('p-sticker').value) || 0,
+        copperCost:   Number(document.getElementById('p-copper').value) || 0,
+        packagingCost:Number(document.getElementById('p-packaging').value) || 0,
+        image:        finalImage,
+        gallery:      galleryItems.filter(Boolean),
+    };
 
     if (editingId) {
         const idx = products.findIndex(p => p.id === editingId);
-        if (idx >= 0) {
-            products[idx] = {
-                ...products[idx],
-                name: document.getElementById('p-name').value.trim(),
-                category: document.getElementById('p-category').value,
-                badge: document.getElementById('p-badge').value,
-                desc: document.getElementById('p-desc').value.trim(),
-                price: Number(document.getElementById('p-price').value),
-                image: finalImage
-            };
-        }
+        if (idx >= 0) products[idx] = { ...products[idx], ...data };
     } else {
-        const newId = Math.max(...products.map(p=>p.id), 0) + 1;
-        products.push({
-            id: newId,
-            name: document.getElementById('p-name').value.trim(),
-            category: document.getElementById('p-category').value,
-            badge: document.getElementById('p-badge').value,
-            desc: document.getElementById('p-desc').value.trim(),
-            price: Number(document.getElementById('p-price').value),
-            image: finalImage
-        });
+        data.id = Math.max(...products.map(p => p.id), 0) + 1;
+        products.push(data);
     }
 
     saveProducts(products);
@@ -389,12 +557,110 @@ function saveProduct(e) {
     renderProducts();
 }
 
+// ─── Category CRUD ───────────────────────────────────
+let editingCategoryId = null;
+
+function renderCategories() {
+    const cats = getCategories();
+    const products = getProducts();
+    const list = document.getElementById('category-list');
+
+    list.innerHTML = cats.map(c => {
+        const count = products.filter(p => p.category === c.id).length;
+        const isDefault = ['office','wellness','tech','traditional'].includes(c.id);
+        return `
+        <div class="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-amber-700" style="font-size:20px">category</span>
+                </div>
+                <div class="min-w-0">
+                    <div class="font-bold text-gray-900 text-sm">${c.name}</div>
+                    <div class="text-xs text-gray-400 mt-0.5">상품 ${count}개 ${isDefault ? '· 기본 카테고리' : ''}</div>
+                </div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+                <button onclick="openCategoryModal('${c.id}')" class="text-xs px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 font-bold transition-colors">수정</button>
+                ${isDefault
+                    ? `<button disabled class="text-xs px-3 py-1.5 rounded-lg bg-gray-50 text-gray-300 font-bold cursor-not-allowed" title="기본 카테고리는 삭제할 수 없습니다">삭제</button>`
+                    : `<button onclick="deleteCategory('${c.id}', ${count})" class="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-bold transition-colors">삭제</button>`
+                }
+            </div>
+        </div>`;
+    }).join('');
+
+    if (cats.length === 0) {
+        list.innerHTML = `<div class="col-span-3 text-center py-16 text-gray-400">
+            <span class="material-symbols-outlined text-4xl block mb-2">category</span>
+            카테고리가 없습니다. 추가해보세요.
+        </div>`;
+    }
+}
+
+function openCategoryModal(id) {
+    editingCategoryId = id || null;
+    if (id) {
+        const cat = getCategories().find(c => c.id === id);
+        if (!cat) return;
+        document.getElementById('cat-modal-title').textContent = '카테고리 수정';
+        document.getElementById('cat-name').value = cat.name;
+        document.getElementById('edit-category-id').value = id;
+    } else {
+        document.getElementById('cat-modal-title').textContent = '카테고리 추가';
+        document.getElementById('cat-name').value = '';
+        document.getElementById('edit-category-id').value = '';
+    }
+    document.getElementById('category-modal').classList.remove('hidden');
+}
+
+function closeCategoryModal() {
+    document.getElementById('category-modal').classList.add('hidden');
+}
+
+function saveCategory(e) {
+    e.preventDefault();
+    const name = document.getElementById('cat-name').value.trim();
+    if (!name) return;
+
+    const cats = getCategories();
+    const existingId = document.getElementById('edit-category-id').value;
+
+    if (existingId) {
+        const idx = cats.findIndex(c => c.id === existingId);
+        if (idx >= 0) cats[idx].name = name;
+    } else {
+        const newId = 'cat_' + Date.now();
+        // Duplicate name check
+        if (cats.some(c => c.name === name)) {
+            alert('같은 이름의 카테고리가 이미 있습니다.');
+            return;
+        }
+        cats.push({id: newId, name});
+    }
+
+    saveCategories(cats);
+    closeCategoryModal();
+    renderCategories();
+}
+
+function deleteCategory(id, productCount) {
+    if (productCount > 0) {
+        if (!confirm(`이 카테고리에 속한 상품 ${productCount}개가 있습니다.\n삭제하면 해당 상품의 카테고리가 비워집니다.\n계속하시겠습니까?`)) return;
+    } else {
+        if (!confirm('이 카테고리를 삭제하시겠습니까?')) return;
+    }
+    saveCategories(getCategories().filter(c => c.id !== id));
+    renderCategories();
+}
+
 // ─── Orders ──────────────────────────────────────────
 const STATUS_OPTIONS = ['처리중','배송중','완료'];
 
 function renderOrders() {
     const orders = JSON.parse(localStorage.getItem('orders') || 'null') || MOCK_ORDERS;
-    document.getElementById('orders-body').innerHTML = orders.map((o, i) => `
+    document.getElementById('orders-body').innerHTML = orders.length === 0
+        ? `<tr><td colspan="7" class="text-center py-16 text-gray-400">접수된 주문이 없습니다.</td></tr>`
+        : orders.map((o, i) => `
         <tr class="border-b border-gray-100 hover:bg-gray-50">
             <td class="px-4 py-3 font-mono text-xs text-gray-500">${o.no}</td>
             <td class="px-4 py-3 font-bold text-gray-900">${o.name}</td>
@@ -407,8 +673,7 @@ function renderOrders() {
                     ${STATUS_OPTIONS.map(s => `<option ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
             </td>
-        </tr>
-    `).join('');
+        </tr>`).join('');
 }
 
 function updateOrderStatus(i, status) {
@@ -456,7 +721,7 @@ function renderList(key) {
                 }
             </div>
             ${isQuote && item.options && item.options.length
-                ? `<div class="mb-3 flex flex-wrap gap-2">${(Array.isArray(item.options) ? item.options : [item.options]).map(o=>`<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">${o}</span>`).join('')}</div>`
+                ? `<div class="mb-3 flex flex-wrap gap-2">${(Array.isArray(item.options)?item.options:[item.options]).map(o=>`<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">${o}</span>`).join('')}</div>`
                 : ''}
             <div class="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 leading-relaxed">${(isQuote ? item.memo : item.content) || '(내용 없음)'}</div>
         </div>`;

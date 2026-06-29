@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html class="light" lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>상품 상세 | JS 프레젠트</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans:wght@400;600;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;text-transform:none;letter-spacing:normal;word-wrap:normal;white-space:nowrap;direction:ltr;}
+    body{min-height:100dvh;font-family:'Noto Sans',sans-serif;}
+    .hide-scrollbar::-webkit-scrollbar{display:none;}
+    .hide-scrollbar{-ms-overflow-style:none;scrollbar-width:none;}
+    .thumb-item{transition:border-color .15s,opacity .15s;}
+    .thumb-item:not(.active){opacity:.6;}
+    .thumb-item:hover{opacity:1;}
+    .thumb-item.active{border-color:#131b2e;opacity:1;}
+    .tier-badge{transition:background .2s,color .2s;}
+    .opt-row{transition:background .15s;}
+    .opt-row:hover{background:#fafafa;}
+    #slide-main-img{transition:opacity .25s;}
+    .slide-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);color:#fff;border:none;border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;}
+    .slide-btn:hover{background:rgba(0,0,0,.7);}
+</style>
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode:"class",
+        theme:{extend:{
+            colors:{
+                "surface-variant":"#d3e4fe","surface-bright":"#f8f9ff","surface-tint":"#565e74",
+                "on-tertiary-container":"#818486","on-error-container":"#93000a",
+                "primary-fixed-dim":"#bec6e0","inverse-primary":"#bec6e0","on-error":"#ffffff",
+                "surface-container-high":"#dce9ff","background":"#f8f9ff","on-surface":"#0b1c30",
+                "surface-container-highest":"#d3e4fe","primary":"#000000","tertiary":"#000000",
+                "inverse-surface":"#213145","tertiary-fixed-dim":"#c4c7c9","secondary-fixed-dim":"#edc06e",
+                "tertiary-container":"#191c1e","surface-container-lowest":"#ffffff","tertiary-fixed":"#e0e3e5",
+                "outline-variant":"#c6c6cd","primary-container":"#131b2e","surface":"#f8f9ff",
+                "error":"#ba1a1a","on-background":"#0b1c30","secondary-container":"#ffd07d",
+                "on-secondary-container":"#79570d","surface-container":"#e5eeff","inverse-on-surface":"#eaf1ff",
+                "on-tertiary":"#ffffff","surface-container-low":"#eff4ff","error-container":"#ffdad6",
+                "on-primary-fixed":"#131b2e","on-tertiary-fixed-variant":"#444749","on-primary":"#ffffff",
+                "primary-fixed":"#dae2fd","secondary":"#7a580f","surface-dim":"#cbdbf5",
+                "on-surface-variant":"#45464d","on-secondary-fixed":"#271900","on-primary-container":"#7c839b",
+                "outline":"#76777d","on-secondary":"#ffffff","on-secondary-fixed-variant":"#5e4200",
+                "on-primary-fixed-variant":"#3f465c","secondary-fixed":"#ffdea8"
+            },
+            borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},
+            spacing:{"unit":"8px","margin-mobile":"20px","container-max":"1280px","section-gap":"120px","margin-desktop":"64px","gutter":"24px"},
+            fontFamily:{"label-sm":["Inter"],"headline-md":["Nanum Myeongjo","serif"],"body-lg":["Noto Sans"],"display-lg":["Nanum Myeongjo","serif"],"display-lg-mobile":["Nanum Myeongjo","serif"],"body-md":["Noto Sans"]},
+            fontSize:{
+                "label-sm":["14px",{"lineHeight":"1","letterSpacing":"0.05em","fontWeight":"500"}],
+                "headline-md":["24px",{"lineHeight":"1.4","letterSpacing":"-0.01em","fontWeight":"600"}],
+                "body-lg":["18px",{"lineHeight":"1.6","fontWeight":"400"}],
+                "display-lg":["48px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+                "display-lg-mobile":["32px",{"lineHeight":"1.2","letterSpacing":"-0.02em","fontWeight":"700"}],
+                "body-md":["16px",{"lineHeight":"1.6","fontWeight":"400"}]
+            }
+        }}
+    }
+</script>
+</head>
+<body class="bg-background text-on-background">
+
+<!-- Mobile Drawer -->
+<div id="drawer-overlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="closeDrawer()"></div>
+<aside id="drawer" class="fixed top-0 left-0 h-full w-64 bg-white z-50 shadow-xl transform -translate-x-full transition-transform duration-300 flex flex-col">
+<div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant">
+    <div class="flex items-center gap-2">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="14" fill="#131b2e"/><circle cx="15" cy="15" r="12.5" stroke="#edc06e" stroke-width="0.8" fill="none" opacity="0.6"/><text x="15" y="20" text-anchor="middle" fill="#edc06e" font-size="11" font-weight="600" font-family="'Cormorant Garamond',Georgia,serif" letter-spacing="1.5">JS</text></svg>
+        <span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:1.05rem;color:#131b2e;letter-spacing:0.12em;">JS <span style="font-weight:400;letter-spacing:0.18em;font-size:0.82em;">PRESENT</span></span>
+    </div>
+    <span class="material-symbols-outlined cursor-pointer text-primary" onclick="closeDrawer()">close</span>
+</div>
+<nav class="flex flex-col px-4 py-6 gap-1">
+    <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">home</span>홈</a>
+    <a href="products.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">inventory_2</span>상품 목록</a>
+    <a href="inquiry.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">edit_note</span>견적문의</a>
+    <a href="contact.html" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface hover:bg-surface-container transition-colors" onclick="closeDrawer()"><span class="material-symbols-outlined text-secondary">support_agent</span>고객문의</a>
+</nav>
+</aside>
+
+<!-- Header -->
+<header class="sticky top-0 w-full z-50 bg-white border-b border-outline-variant">
+<div class="flex justify-between items-center px-5 md:px-16 py-2 max-w-[1280px] mx-auto">
+    <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined cursor-pointer active:scale-95 transition-transform text-primary" onclick="openDrawer()">menu</span>
+        <a href="index.html" class="flex items-center gap-2.5">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" fill="#131b2e"/><circle cx="20" cy="20" r="16.5" stroke="#edc06e" stroke-width="0.8" fill="none" opacity="0.6"/><text x="20" y="26" text-anchor="middle" fill="#edc06e" font-size="15" font-weight="600" font-family="'Cormorant Garamond',Georgia,serif" letter-spacing="2.5">JS</text></svg>
+            <span style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;font-size:clamp(1.1rem,2.5vw,1.4rem);color:#131b2e;letter-spacing:0.12em;line-height:1.1;">JS <span style="font-weight:400;letter-spacing:0.2em;font-size:0.78em;">PRESENT</span></span>
+        </a>
+    </div>
+    <div class="flex items-center gap-2">
+        <nav class="hidden md:flex gap-8 items-center mr-8">
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="index.html">홈</a>
+            <a class="text-primary font-bold border-b-2 border-primary py-1" href="products.html">상품 목록</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="inquiry.html">견적문의</a>
+            <a class="text-on-surface-variant hover:text-primary transition-opacity" href="contact.html">고객문의</a>
+        </nav>
+        <a href="login.html" title="관리자 페이지" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" style="font-size:20px">admin_panel_settings</span>
+        </a>
+    </div>
+</div>
+</header>
+
+<main class="max-w-[1280px] mx-auto px-5 md:px-16 py-8 md:py-12">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-8">
+        <a href="index.html" class="hover:text-primary transition-colors">홈</a>
+        <span class="material-symbols-outlined text-base text-outline">chevron_right</span>
+        <a href="products.html" class="hover:text-primary transition-colors">상품 목록</a>
+        <span class="material-symbols-outlined text-base text-outline">chevron_right</span>
+        <span id="breadcrumb-name" class="text-on-surface font-bold truncate max-w-[200px]">상품명</span>
+    </nav>
+
+    <!-- Not Found -->
+    <div id="not-found" class="hidden text-center py-32">
+        <span class="material-symbols-outlined text-6xl mb-4 block text-outline">error_outline</span>
+        <h2 class="text-2xl font-bold mb-2">상품을 찾을 수 없습니다</h2>
+        <p class="text-on-surface-variant mb-6">삭제되었거나 존재하지 않는 상품입니다.</p>
+        <a href="products.html" class="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors">상품 목록으로</a>
+    </div>
+
+    <!-- Product Detail -->
+    <div id="product-detail" class="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
+
+        <!-- ── LEFT: Image Slider ── -->
+        <div>
+            <!-- Main slide -->
+            <div class="relative aspect-square bg-surface-container rounded-2xl overflow-hidden mb-4 group">
+                <img id="slide-main-img" src="" alt="" class="w-full h-full object-cover"/>
+                <!-- Arrows -->
+                <button id="prev-btn" onclick="prevSlide()" class="slide-btn left-3 hidden">
+                    <span class="material-symbols-outlined" style="font-size:20px">chevron_left</span>
+                </button>
+                <button id="next-btn" onclick="nextSlide()" class="slide-btn right-3 hidden">
+                    <span class="material-symbols-outlined" style="font-size:20px">chevron_right</span>
+                </button>
+                <!-- Counter -->
+                <div id="slide-counter" class="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full hidden">1 / 1</div>
+            </div>
+            <!-- Thumbnails -->
+            <div id="thumbnails" class="flex gap-2 overflow-x-auto hide-scrollbar pb-1"></div>
+        </div>
+
+        <!-- ── RIGHT: Quote Calculator ── -->
+        <div class="flex flex-col gap-6">
+            <!-- Product info -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span id="product-badge" class="hidden text-xs font-bold px-2.5 py-1 rounded-full"></span>
+                    <span id="product-category" class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full"></span>
+                </div>
+                <h1 id="product-name" class="text-2xl md:text-3xl font-bold text-on-surface mb-2 leading-tight" style="font-family:'Nanum Myeongjo',serif;"></h1>
+                <p id="product-desc" class="text-on-surface-variant text-base"></p>
+            </div>
+
+            <div class="border-t border-outline-variant"></div>
+
+            <!-- Quantity selector -->
+            <div>
+                <label class="block text-sm font-bold text-on-surface mb-3">수량 선택 <span class="text-on-surface-variant font-normal">(최소 30개)</span></label>
+                <div class="flex items-center gap-3 mb-4">
+                    <button onclick="adjustQty(-10)" class="w-10 h-10 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center">−</button>
+                    <input id="qty-input" type="number" min="30" value="30"
+                        onchange="clampAndUpdate()" oninput="updateQuote()"
+                        class="w-24 text-center text-xl font-bold border-2 border-outline-variant rounded-xl py-2 focus:outline-none focus:border-primary transition-colors bg-white"/>
+                    <button onclick="adjustQty(10)" class="w-10 h-10 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center">+</button>
+                    <span class="text-on-surface-variant text-sm">개</span>
+                </div>
+
+                <!-- Quantity tier price badges -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <div id="tier-30" class="tier-badge text-center text-xs rounded-xl py-2 px-1 bg-surface-container text-on-surface-variant">
+                        <div class="font-bold">30 ~ 99개</div>
+                        <div id="tier-30-price" class="opacity-75 mt-0.5"></div>
+                    </div>
+                    <div id="tier-100" class="tier-badge text-center text-xs rounded-xl py-2 px-1 bg-surface-container text-on-surface-variant">
+                        <div class="font-bold">100 ~ 299개</div>
+                        <div id="tier-100-price" class="opacity-75 mt-0.5"></div>
+                    </div>
+                    <div id="tier-300" class="tier-badge text-center text-xs rounded-xl py-2 px-1 bg-surface-container text-on-surface-variant">
+                        <div class="font-bold">300 ~ 999개</div>
+                        <div id="tier-300-price" class="opacity-75 mt-0.5"></div>
+                    </div>
+                    <div id="tier-1000" class="tier-badge text-center text-xs rounded-xl py-2 px-1 bg-surface-container text-on-surface-variant">
+                        <div class="font-bold">1,000개~</div>
+                        <div id="tier-1000-price" class="opacity-75 mt-0.5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Options -->
+            <div>
+                <label class="block text-sm font-bold text-on-surface mb-3">인쇄 / 추가 옵션</label>
+                <div class="flex flex-col gap-2 rounded-xl border border-outline-variant overflow-hidden">
+                    <!-- Sticker -->
+                    <label class="opt-row flex items-center justify-between px-4 py-3.5 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <input id="opt-sticker" type="checkbox" onchange="updateQuote()"
+                                class="w-4 h-4 rounded border-outline-variant accent-primary cursor-pointer"/>
+                            <div>
+                                <div class="text-sm font-bold text-on-surface">스티커</div>
+                                <div id="sticker-unit-label" class="text-xs text-on-surface-variant"></div>
+                            </div>
+                        </div>
+                        <span id="sticker-amt" class="text-sm font-bold text-on-surface hidden"></span>
+                    </label>
+                    <div class="border-t border-outline-variant mx-4"></div>
+                    <!-- Copper -->
+                    <label class="opt-row flex items-center justify-between px-4 py-3.5 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <input id="opt-copper" type="checkbox" onchange="updateQuote()"
+                                class="w-4 h-4 rounded border-outline-variant accent-primary cursor-pointer"/>
+                            <div>
+                                <div class="text-sm font-bold text-on-surface">동판인쇄</div>
+                                <div id="copper-unit-label" class="text-xs text-on-surface-variant"></div>
+                            </div>
+                        </div>
+                        <span id="copper-amt" class="text-sm font-bold text-on-surface hidden"></span>
+                    </label>
+                    <div class="border-t border-outline-variant mx-4"></div>
+                    <!-- Packaging -->
+                    <label class="opt-row flex items-center justify-between px-4 py-3.5 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <input id="opt-packaging" type="checkbox" onchange="updateQuote()"
+                                class="w-4 h-4 rounded border-outline-variant accent-primary cursor-pointer"/>
+                            <div>
+                                <div class="text-sm font-bold text-on-surface">포장</div>
+                                <div id="packaging-unit-label" class="text-xs text-on-surface-variant"></div>
+                            </div>
+                        </div>
+                        <span id="packaging-amt" class="text-sm font-bold text-on-surface hidden"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="bg-surface-container-low rounded-2xl p-5">
+                <div class="text-sm font-bold text-on-surface mb-3">견적 내역</div>
+                <div class="flex flex-col gap-2 text-sm">
+                    <!-- Product cost row -->
+                    <div class="flex justify-between items-start">
+                        <div class="text-on-surface-variant">
+                            상품 금액
+                            <span id="unit-price-note" class="block text-xs mt-0.5"></span>
+                        </div>
+                        <span id="calc-product" class="font-bold text-on-surface">-</span>
+                    </div>
+                    <!-- Sticker row -->
+                    <div id="row-sticker" class="flex justify-between items-center hidden">
+                        <span class="text-on-surface-variant">스티커</span>
+                        <span id="calc-sticker" class="font-bold text-on-surface">-</span>
+                    </div>
+                    <!-- Copper row -->
+                    <div id="row-copper" class="flex justify-between items-center hidden">
+                        <span class="text-on-surface-variant">동판인쇄</span>
+                        <span id="calc-copper" class="font-bold text-on-surface">-</span>
+                    </div>
+                    <!-- Packaging row -->
+                    <div id="row-packaging" class="flex justify-between items-center hidden">
+                        <span class="text-on-surface-variant">포장</span>
+                        <span id="calc-packaging" class="font-bold text-on-surface">-</span>
+                    </div>
+                    <!-- Shipping -->
+                    <div class="flex justify-between items-center text-on-surface-variant">
+                        <span>배송비</span>
+                        <span class="text-xs">추후 안내</span>
+                    </div>
+                    <!-- Divider -->
+                    <div class="border-t border-outline-variant my-1"></div>
+                    <!-- Total -->
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-on-surface">최종 합계</span>
+                        <span id="calc-total" class="text-xl font-bold text-primary">-</span>
+                    </div>
+                    <p class="text-xs text-on-surface-variant mt-1">* 배송비 미포함 / 부가세 별도</p>
+                </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a id="inquiry-link" href="inquiry.html"
+                    class="flex-1 bg-primary text-white text-center py-4 rounded-xl font-bold hover:bg-gray-800 active:scale-95 transition-all">
+                    견적 문의하기
+                </a>
+                <a href="products.html"
+                    class="flex-1 border-2 border-outline-variant text-on-surface text-center py-4 rounded-xl font-bold hover:bg-surface-container active:scale-95 transition-all">
+                    목록으로
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest border-t border-outline-variant mt-16">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-5 md:px-16 py-12 max-w-[1280px] mx-auto">
+    <div>
+        <h2 class="font-bold text-lg text-on-surface mb-3">JS Present Premium</h2>
+        <p class="text-sm text-on-surface/60 mb-6 max-w-xs">프리미엄 공공기관 전문 선물 큐레이션 파트너.</p>
+        <p class="text-xs text-on-surface opacity-40">© 2024 JS Present.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-8">
+        <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">안내</h4>
+            <a class="text-on-tertiary-container hover:underline text-sm" href="#">이용약관</a>
+            <a class="text-on-tertiary-container hover:underline text-sm" href="#">개인정보처리방침</a>
+        </div>
+        <div class="flex flex-col gap-3">
+            <h4 class="font-bold text-sm uppercase tracking-wider text-primary">바로가기</h4>
+            <a class="text-on-tertiary-container hover:underline text-sm" href="products.html">상품 목록</a>
+            <a class="text-on-tertiary-container hover:underline text-sm" href="inquiry.html">견적문의</a>
+        </div>
+    </div>
+</div>
+</footer>
+
+<script>
+// ─── Load product from localStorage ──────────────────
+const IMG_FALLBACK = {
+    office:      'https://lh3.googleusercontent.com/aida-public/AB6AXuD_lejvd1YdlHNZkahVIJNViSHVyg17ehfT4Z7c8muDTxDgqKDW8C1uKEUIpqrEpkhT55otO3t2tz9ucF_2g9QabGbsIRKk_dM7UyuleO2AXuMjXMv9a0ZPbnFt9sQS9HyPv_N5XN7Gcd8gsfzFsqHIFuFn1SlAf2Dm_ypY60OKIyDhvw_ruUAWwzZ-R5x1BIOu_QXsOK-BfWIjOLFQA7cv60SjZ9svR4Ln48_pG7MoW_t0n-Gp_CMqlQXbCci9bQESwH90alF_s6I',
+    wellness:    'https://lh3.googleusercontent.com/aida-public/AB6AXuD2qiefU5pjIGLPCgbV_Amuc4YsA8XPAT1Z7LC_ZOxxA50WhJFjlKS0PNBTsa45vzJ1OWlO0KGhPbh4IrlxMNT10vzEhpszaOtpNZUENkILsgZEEMbv0EFDxYmOVzlwp7GgJKzeqOjqw4sNgFqzNqGifLJaBKpBBspWAc8sMfG64E8w6MDnh7dJtK1oGUpJm_qXt6e90KFLXOLUbl-vsEo5CxjU29tJUpnvb1bvJF7VV_VevNarvu2CxFjzBHqGmCKPKWaw0_-LgA8',
+    tech:        'https://lh3.googleusercontent.com/aida-public/AB6AXuAA0Sd7e7OwMMBLxX8q9AV3nH_Ld6BjfUyeqABIJmETmKxWI9NKuH7WqG9EFBzjbec3YMLa8g_zMq5UWCG5GhuOlthFPgtA89q5u-Y4bFn-ockQ0PJyVhM8nc2TxXInOoiHDcyyOfT1l0U-aq9m9b03Z_aag8DgGoVsG-3r2e8VZ5NFGA4ao1kkjdoG7mWiB9UzIBx8XmlcBSVqVKI7i8Z-ADYrtQLh6MB63Exx8oERUDLIHwQbMd1U5X_95jLP-mgdROdsNSSBslg',
+    traditional: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBz_r8T2rA3jMe13OAL3gBvQ5u8e3KOKUp5B9SI3ORhrnJpNBfenFC1eC0dTJbg1gPFHOATlZ-uEo3pINkd-7L7w_pJ3DVsHgPUTUKcw0HE6WTI_D1I4cZiCPvoSKKGR89-fvDfT-weYCUWwbUiuIoC-fD_TjN-aNnL19GaoMtm2Vl5HZCzOFl0hHI53LU662rN2KxkR3RuL1eqywU5Xx9oTvqMWyZ6mzpfzk7ZLfC7oNLhapoudC5wvaFCeP8ZLprOZM6BxydQCgI'
+};
+
+const DEFAULT_PRODUCTS = [
+    {id:1,name:'시그니처 가죽 사무 세트',  category:'office',      desc:'공공기관 행정용 / VIP 기념품', unitCost:35000,badge:'BEST',image:IMG_FALLBACK.office,     gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:2,name:'프리미엄 웰니스 티 세트',  category:'wellness',   desc:'명절 선물 / 임직원 감사용',    unitCost:42000,badge:'',   image:IMG_FALLBACK.wellness,   gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:3,name:'스마트 오피스 테크 패키지',category:'tech',        desc:'신입사원 웰컴키트 / 워크샵',   unitCost:58000,badge:'NEW', image:IMG_FALLBACK.tech,       gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:4,name:'전통 자개 문구 트레이',    category:'traditional',desc:'외빈 초청 / 한국 전통 선물',   unitCost:89000,badge:'',   image:IMG_FALLBACK.traditional,gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:5,name:'고급 볼펜 & 노트 세트',   category:'office',      desc:'행사 기념품 / 강연 답례',     unitCost:22000,badge:'',   image:IMG_FALLBACK.office,     gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:6,name:'프리미엄 향초 & 디퓨저 세트',category:'wellness', desc:'VIP 감사 / 개업 축하',         unitCost:67000,badge:'',   image:IMG_FALLBACK.wellness,   gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:7,name:'무선 충전 패드 세트',      category:'tech',        desc:'임직원 복지 / 기업 답례',     unitCost:45000,badge:'',   image:IMG_FALLBACK.tech,       gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+    {id:8,name:'한지 공예 박스 세트',      category:'traditional',desc:'외교 선물 / 기관 기념품',     unitCost:115000,badge:'',  image:IMG_FALLBACK.traditional,gallery:[],stickerCost:0,copperCost:0,packagingCost:0},
+];
+
+const DEFAULT_CATEGORIES_D = [
+    {id:'office',name:'사무용품'},{id:'wellness',name:'웰니스'},
+    {id:'tech',name:'테크'},{id:'traditional',name:'전통공예'},
+];
+function getCategoryName(id) {
+    const saved = localStorage.getItem('categories');
+    const cats = saved ? JSON.parse(saved) : DEFAULT_CATEGORIES_D;
+    return (cats.find(c => c.id === id) || {name: id}).name;
+}
+const BADGE_STYLE = {BEST:'bg-secondary text-white', NEW:'bg-secondary-container text-on-secondary-container', SALE:'bg-red-500 text-white'};
+
+function getProducts() {
+    const saved = localStorage.getItem('products');
+    if (!saved) return DEFAULT_PRODUCTS;
+    return JSON.parse(saved).map(p => ({
+        gallery:[], stickerCost:0, copperCost:0, packagingCost:0,
+        unitCost: p.unitCost || p.price || 0,
+        ...p
+    }));
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const productId = parseInt(urlParams.get('id'));
+const products = getProducts();
+const product = products.find(p => p.id === productId);
+
+if (!product) {
+    document.getElementById('not-found').classList.remove('hidden');
+    document.getElementById('product-detail').classList.add('hidden');
+} else {
+    initPage(product);
+}
+
+// ─── Page init ────────────────────────────────────────
+function initPage(p) {
+    document.title = p.name + ' | JS 프레젠트';
+
+    // Breadcrumb & info
+    document.getElementById('breadcrumb-name').textContent = p.name;
+    document.getElementById('product-name').textContent = p.name;
+    document.getElementById('product-desc').textContent = p.desc || '';
+    document.getElementById('product-category').textContent = getCategoryName(p.category);
+
+    // Badge
+    if (p.badge && BADGE_STYLE[p.badge]) {
+        const badge = document.getElementById('product-badge');
+        badge.textContent = p.badge;
+        badge.className = 'text-xs font-bold px-2.5 py-1 rounded-full ' + BADGE_STYLE[p.badge];
+        badge.classList.remove('hidden');
+    }
+
+    // Tier price labels (show per-unit price at each tier, no margin % shown)
+    const tierList = [
+        {id: 'tier-30',   qty: 30},
+        {id: 'tier-100',  qty: 100},
+        {id: 'tier-300',  qty: 300},
+        {id: 'tier-1000', qty: 1000},
+    ];
+    const unitCostVal = p.unitCost || 0;
+    tierList.forEach(t => {
+        const priceEl = document.getElementById(t.id + '-price');
+        if (priceEl && unitCostVal > 0) {
+            const perUnit = Math.ceil(unitCostVal * (1 + getMarginRate(t.qty)));
+            priceEl.textContent = perUnit.toLocaleString() + '원/개';
+        }
+    });
+
+    // Option labels
+    const sc = p.stickerCost || 0;
+    const cc = p.copperCost || 0;
+    const pc = p.packagingCost || 0;
+    document.getElementById('sticker-unit-label').textContent  = sc > 0 ? `개당 +${sc.toLocaleString()}원` : '단가 문의';
+    document.getElementById('copper-unit-label').textContent   = cc > 0 ? `개당 +${cc.toLocaleString()}원` : '단가 문의';
+    document.getElementById('packaging-unit-label').textContent = pc > 0 ? `개당 +${pc.toLocaleString()}원` : '단가 문의';
+
+    // Inquiry link
+    document.getElementById('inquiry-link').href = 'inquiry.html?product=' + encodeURIComponent(p.name);
+
+    // Slider
+    const images = [p.image, ...(p.gallery || [])].filter(Boolean);
+    initSlider(images);
+
+    // Quote
+    updateQuote();
+}
+
+// ─── Image Slider ─────────────────────────────────────
+let slides = [];
+let currentSlide = 0;
+
+function initSlider(images) {
+    slides = images.length > 0 ? images : [''];
+    renderThumbnails();
+    showSlide(0);
+}
+
+function showSlide(idx) {
+    currentSlide = ((idx % slides.length) + slides.length) % slides.length;
+    const img = document.getElementById('slide-main-img');
+    img.style.opacity = '0';
+    setTimeout(() => {
+        img.src = slides[currentSlide];
+        img.style.opacity = '1';
+    }, 120);
+
+    const counter = document.getElementById('slide-counter');
+    if (slides.length > 1) {
+        counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+        counter.classList.remove('hidden');
+        document.getElementById('prev-btn').classList.remove('hidden');
+        document.getElementById('next-btn').classList.remove('hidden');
+    } else {
+        counter.classList.add('hidden');
+        document.getElementById('prev-btn').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+    }
+
+    document.querySelectorAll('.thumb-item').forEach((t, i) => {
+        t.classList.toggle('active', i === currentSlide);
+    });
+}
+
+function nextSlide() { showSlide(currentSlide + 1); }
+function prevSlide() { showSlide(currentSlide - 1); }
+
+function renderThumbnails() {
+    if (slides.length <= 1) return;
+    document.getElementById('thumbnails').innerHTML = slides.map((img, i) => `
+        <div class="thumb-item flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden cursor-pointer border-2 border-transparent"
+             onclick="showSlide(${i})">
+            <img src="${img}" class="w-full h-full object-cover" alt=""/>
+        </div>
+    `).join('');
+}
+
+// Touch/swipe for slider
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) dx < 0 ? nextSlide() : prevSlide();
+}, {passive:true});
+
+// ─── Quote Calculator ─────────────────────────────────
+function getMarginRate(qty) {
+    if (qty >= 1000) return 0.10;
+    if (qty >= 300)  return 0.12;
+    if (qty >= 100)  return 0.20;
+    return 0.25;
+}
+
+function adjustQty(delta) {
+    const input = document.getElementById('qty-input');
+    const newVal = Math.max(30, (parseInt(input.value) || 30) + delta);
+    input.value = newVal;
+    updateQuote();
+}
+
+function clampAndUpdate() {
+    const input = document.getElementById('qty-input');
+    if (parseInt(input.value) < 30 || isNaN(parseInt(input.value))) input.value = 30;
+    updateQuote();
+}
+
+function updateQuote() {
+    if (!product) return;
+
+    const qty = Math.max(30, parseInt(document.getElementById('qty-input').value) || 30);
+    const margin = getMarginRate(qty);
+    const unitCost = product.unitCost || 0;
+    const pricePerUnit = Math.ceil(unitCost * (1 + margin));
+    const productTotal = pricePerUnit * qty;
+
+    const stickerOn   = document.getElementById('opt-sticker').checked;
+    const copperOn    = document.getElementById('opt-copper').checked;
+    const packagingOn = document.getElementById('opt-packaging').checked;
+
+    const sc = product.stickerCost   || 0;
+    const cc = product.copperCost    || 0;
+    const pc = product.packagingCost || 0;
+
+    const stickerTotal   = stickerOn   ? sc * qty : 0;
+    const copperTotal    = copperOn    ? cc * qty : 0;
+    const packagingTotal = packagingOn ? pc * qty : 0;
+
+    const grandTotal = productTotal + stickerTotal + copperTotal + packagingTotal;
+
+    // Tier highlight
+    const tiers = [{id:'tier-30',min:30,max:99},{id:'tier-100',min:100,max:299},{id:'tier-300',min:300,max:999},{id:'tier-1000',min:1000}];
+    tiers.forEach(t => {
+        const el = document.getElementById(t.id);
+        const active = qty >= t.min && (!t.max || qty <= t.max);
+        el.classList.toggle('bg-primary', active);
+        el.classList.toggle('text-white', active);
+        el.classList.toggle('bg-surface-container', !active);
+        el.classList.toggle('text-on-surface-variant', !active);
+    });
+
+    // Product row
+    document.getElementById('calc-product').textContent = productTotal.toLocaleString() + '원';
+    document.getElementById('unit-price-note').textContent = `개당 ${pricePerUnit.toLocaleString()}원 × ${qty}개`;
+
+    // Option rows
+    setOptRow('sticker',   stickerOn,   stickerTotal,   'calc-sticker',   'row-sticker',   'sticker-amt');
+    setOptRow('copper',    copperOn,    copperTotal,    'calc-copper',    'row-copper',    'copper-amt');
+    setOptRow('packaging', packagingOn, packagingTotal, 'calc-packaging', 'row-packaging', 'packaging-amt');
+
+    // Total
+    document.getElementById('calc-total').textContent = grandTotal.toLocaleString() + '원';
+}
+
+function setOptRow(key, on, total, calcId, rowId, amtId) {
+    document.getElementById(calcId).textContent = on ? total.toLocaleString() + '원' : '-';
+    document.getElementById(rowId).classList.toggle('hidden', !on);
+    const amtEl = document.getElementById(amtId);
+    if (amtEl) {
+        amtEl.textContent = on ? total.toLocaleString() + '원' : '';
+        amtEl.classList.toggle('hidden', !on);
+    }
+}
+
+// ─── Nav ─────────────────────────────────────────────
+function openDrawer() {
+    document.getElementById('drawer').classList.remove('-translate-x-full');
+    document.getElementById('drawer-overlay').classList.remove('hidden');
+}
+function closeDrawer() {
+    document.getElementById('drawer').classList.add('-translate-x-full');
+    document.getElementById('drawer-overlay').classList.add('hidden');
+}
+
+window.addEventListener('scroll', () => {
+    document.querySelector('header').classList.toggle('shadow-md', window.scrollY > 10);
+});
+</script>
+</body>
+</html>
