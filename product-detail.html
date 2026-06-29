@@ -168,11 +168,11 @@
             <div>
                 <label class="block text-sm font-bold text-on-surface mb-3">수량 선택 <span class="text-on-surface-variant font-normal">(최소 30개)</span></label>
                 <div class="flex items-center gap-3 mb-4">
-                    <button onclick="adjustQty(-10)" class="w-10 h-10 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center">−</button>
+                    <button onclick="adjustQty(-10)" class="w-11 h-11 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center flex-shrink-0">−</button>
                     <input id="qty-input" type="number" min="30" value="30"
                         onchange="clampAndUpdate()" oninput="updateQuote()"
-                        class="w-24 text-center text-xl font-bold border-2 border-outline-variant rounded-xl py-2 focus:outline-none focus:border-primary transition-colors bg-white"/>
-                    <button onclick="adjustQty(10)" class="w-10 h-10 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center">+</button>
+                        class="w-24 text-center text-xl font-bold border-2 border-outline-variant rounded-xl py-2.5 focus:outline-none focus:border-primary transition-colors bg-white"/>
+                    <button onclick="adjustQty(10)" class="w-11 h-11 rounded-xl border border-outline-variant text-on-surface font-bold hover:bg-surface-container transition-colors text-lg flex items-center justify-center flex-shrink-0">+</button>
                     <span class="text-on-surface-variant text-sm">개</span>
                 </div>
 
