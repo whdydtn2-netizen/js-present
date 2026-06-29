@@ -50,6 +50,9 @@
             <div class="nav-item" onclick="switchTab('quotes')">
                 <span class="material-symbols-outlined text-xl">edit_note</span>견적문의
             </div>
+            <div class="nav-item" onclick="switchTab('product-inquiries')">
+                <span class="material-symbols-outlined text-xl">search</span>상품문의
+            </div>
             <div class="nav-item" onclick="switchTab('contacts')">
                 <span class="material-symbols-outlined text-xl">support_agent</span>고객문의
             </div>
@@ -128,6 +131,16 @@
                 <div id="quotes-empty" class="hidden text-center py-20 text-gray-400">
                     <span class="material-symbols-outlined text-5xl mb-3 block">inbox</span>
                     <p>접수된 견적문의가 없습니다.</p>
+                </div>
+            </div>
+
+            <!-- 상품문의 -->
+            <div id="tab-product-inquiries" class="tab-content">
+                <p class="text-gray-500 text-sm mb-6">상품문의 페이지에서 접수된 문의입니다.</p>
+                <div id="product-inquiries-list" class="flex flex-col gap-4"></div>
+                <div id="product-inquiries-empty" class="hidden text-center py-20 text-gray-400">
+                    <span class="material-symbols-outlined text-5xl mb-3 block">search</span>
+                    <p>접수된 상품문의가 없습니다.</p>
                 </div>
             </div>
 
@@ -336,7 +349,7 @@ function saveProducts(arr) {
 }
 
 // ─── Tab switching ───────────────────────────────────
-const TAB_TITLES = {products:'상품 관리', categories:'카테고리 관리', orders:'주문 확인', quotes:'견적문의', contacts:'고객문의'};
+const TAB_TITLES = {products:'상품 관리', categories:'카테고리 관리', orders:'주문 확인', quotes:'견적문의', 'product-inquiries':'상품문의', contacts:'고객문의'};
 
 function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -349,8 +362,9 @@ function switchTab(name) {
     if (name === 'products')   renderProducts();
     if (name === 'categories') renderCategories();
     if (name === 'orders')     renderOrders();
-    if (name === 'quotes')     renderList('quotes');
-    if (name === 'contacts')   renderList('contacts');
+    if (name === 'quotes')             renderList('quotes');
+    if (name === 'product-inquiries')  renderProductInquiries();
+    if (name === 'contacts')           renderList('contacts');
 }
 
 // ─── Products ─────────────────────────────────────────
@@ -726,6 +740,49 @@ function renderList(key) {
             <div class="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 leading-relaxed">${(isQuote ? item.memo : item.content) || '(내용 없음)'}</div>
         </div>`;
     }).join('');
+}
+
+function renderProductInquiries() {
+    const items = JSON.parse(localStorage.getItem('product_inquiries') || '[]');
+    const listEl = document.getElementById('product-inquiries-list');
+    const emptyEl = document.getElementById('product-inquiries-empty');
+
+    if (items.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.classList.remove('hidden');
+        return;
+    }
+    emptyEl.classList.add('hidden');
+
+    listEl.innerHTML = items.map((item, i) => `
+        <div class="bg-white rounded-xl border border-gray-200 p-5">
+            <div class="flex flex-wrap justify-between items-start gap-3 mb-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="status-badge badge-${item.status || '미확인'}">${item.status || '미확인'}</span>
+                    <span class="text-xs text-gray-400">${item.createdAt ? new Date(item.createdAt).toLocaleString('ko-KR') : ''}</span>
+                </div>
+                <select onchange="updateProductInquiryStatus(${i}, this.value)" class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:border-gray-900 bg-white">
+                    <option ${item.status==='미확인'?'selected':''}>미확인</option>
+                    <option ${item.status==='검토중'?'selected':''}>검토중</option>
+                    <option ${item.status==='완료'?'selected':''}>완료</option>
+                </select>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm mb-4">
+                <div><span class="text-gray-400 text-xs block mb-0.5">담당자</span><span class="font-bold text-gray-900">${item.name}</span></div>
+                <div><span class="text-gray-400 text-xs block mb-0.5">연락처</span><span class="text-gray-700">${item.phone}</span></div>
+                <div><span class="text-gray-400 text-xs block mb-0.5">회사·기관</span><span class="text-gray-700">${item.company || '-'}</span></div>
+                <div><span class="text-gray-400 text-xs block mb-0.5">수량</span><span class="text-gray-700">${item.qty ? item.qty + '개' : '-'}</span></div>
+            </div>
+            ${item.deadline ? `<div class="text-xs text-gray-500 mb-3">희망 납기: <span class="font-bold text-gray-700">${item.deadline}</span></div>` : ''}
+            ${item.options ? `<div class="mb-3 flex flex-wrap gap-2">${item.options.split(', ').filter(Boolean).map(o=>`<span class="text-xs bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">${o}</span>`).join('')}</div>` : ''}
+            <div class="bg-gray-50 rounded-lg px-4 py-3 text-sm text-gray-700 leading-relaxed mb-3"><strong class="text-gray-500 text-xs block mb-1">원하는 상품</strong>${item.products || '(내용 없음)'}</div>
+            ${item.memo ? `<div class="bg-blue-50 rounded-lg px-4 py-3 text-sm text-gray-700 leading-relaxed"><strong class="text-gray-500 text-xs block mb-1">기타 요청사항</strong>${item.memo}</div>` : ''}
+        </div>`).join('');
+}
+
+function updateProductInquiryStatus(i, status) {
+    const items = JSON.parse(localStorage.getItem('product_inquiries') || '[]');
+    if (items[i]) { items[i].status = status; localStorage.setItem('product_inquiries', JSON.stringify(items)); }
 }
 
 function updateItemStatus(key, i, status) {
